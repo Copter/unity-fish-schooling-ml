@@ -191,7 +191,7 @@ public class mlControlFishScript : Agent
             // Destroy(gameObject);
             SetReward(0f);
             this.transform.localPosition = new Vector2(100, 100);
-            rb.constraints = RigidbodyConstraints2D.FreezePosition;
+            //rb.constraints = RigidbodyConstraints2D.FreezePosition;
         }
     }
 
