@@ -47,6 +47,7 @@ public class mlControlFishScript : Agent
     {
         // Move the target to a new spot
         transform.position = new Vector2(Random.Range(-16,16), Random.Range(-9,9));
+        isAlive = true;
         rb.constraints = RigidbodyConstraints2D.None;
         timeAlive = 0;
     }
