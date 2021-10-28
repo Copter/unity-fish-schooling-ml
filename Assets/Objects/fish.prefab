@@ -201,7 +201,6 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
-  allowKeyboardControl: 0
   isInFoodZone: 0
   timeAlive: 0
   swimSpeed: 1
@@ -211,7 +210,7 @@ MonoBehaviour:
   maxEnergy: 100
   stomach: 0
   maxStomach: 100
-  energyConsumptionFactor: 0.05
+  energyConsumptionFactor: 0.01
   currentOrientation: 0
 --- !u!114 &4937240245938133244
 MonoBehaviour:
