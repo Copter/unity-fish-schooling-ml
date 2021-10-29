@@ -7,7 +7,7 @@ using Unity.MLAgents.Sensors;
 public class mlControlFishScript : Agent
 {
 
-    public bool allowKeyboardControl = false;
+    //public bool allowKeyboardControl = false;
 
     private bool isAlive = true;
     public bool isInFoodZone = false;
@@ -46,7 +46,7 @@ public class mlControlFishScript : Agent
     public override void OnEpisodeBegin()
     {
         // Move the target to a new spot
-        transform.position = new Vector2(Random.Range(-16,16), Random.Range(-9,9));
+        transform.position = new Vector2(Random.Range(-20,20), Random.Range(-20,20));
         isAlive = true;
         energy = 100f;
         stomach = 0f;
