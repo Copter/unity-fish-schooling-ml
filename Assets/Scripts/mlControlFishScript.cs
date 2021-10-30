@@ -38,7 +38,7 @@ public class mlControlFishScript : Agent
     // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+        //rb = GetComponent<Rigidbody2D>();
 		initialVector = RandomUnitVector();
 		rb.velocity = swimSpeed * initialVector;
     }
@@ -47,10 +47,11 @@ public class mlControlFishScript : Agent
     {
         // Move the target to a new spot
         transform.position = new Vector2(Random.Range(-20,20), Random.Range(-20,20));
+        rb = GetComponent<Rigidbody2D>();
         isAlive = true;
         energy = 100f;
         stomach = 0f;
-        rb.constraints = RigidbodyConstraints2D.None;
+        //rb.constraints = RigidbodyConstraints2D.None;
         timeAlive = 0;
     }
 
@@ -92,7 +93,8 @@ public class mlControlFishScript : Agent
     {
         if(isAlive) {
             energyCalculations();
-            SetReward(energy);
+            timeAlive += 1;
+            SetReward(timeAlive);
             transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
             deadConditions();
         }
@@ -189,7 +191,7 @@ public class mlControlFishScript : Agent
         if(!isAlive)
         {
             // Destroy(gameObject);
-            SetReward(0f);
+            SetReward(timeAlive);
             this.transform.localPosition = new Vector2(100, 100);
             //rb.constraints = RigidbodyConstraints2D.FreezePosition;
         }
@@ -199,7 +201,7 @@ public class mlControlFishScript : Agent
     {
         if (coll.gameObject.tag == "food" && stomach < maxStomach)
         {
-            coll.gameObject.GetComponent<foodZone>().foodAmount += -1f;
+            coll.gameObject.GetComponent<foodZone>().foodAmount -= 1f;
             stomach += 1f;
             isInFoodZone = true;
         } else {

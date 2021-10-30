@@ -12,13 +12,11 @@ GameObject:
   - component: {fileID: 4937240245938133240}
   - component: {fileID: 4937240245938133247}
   - component: {fileID: 4937240245938133246}
-  - component: {fileID: 4937240245938133245}
   - component: {fileID: 4937240245938133243}
   - component: {fileID: 4937240245938133242}
-  - component: {fileID: 4937240245938133244}
   - component: {fileID: 4937240245938133220}
   - component: {fileID: 4937240245938133221}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: fish
   m_TagString: fish
   m_Icon: {fileID: 0}
@@ -137,30 +135,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &4937240245938133245
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4937240245938133235}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8f243e17bdda9646a2c89182d755862, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  allowKeyboardControl: 1
-  deadWhenOutOfEnergy: 1
-  deadWhenNoVelocity: 1
-  rb: {fileID: 4937240245938133246}
-  swimSpeed: 1
-  steerStrength: 0.1
-  energy: 100
-  maxEnergy: 100
-  stomach: 0
-  maxStomach: 100
-  energyConsumptionFactor: 0.1
-  currentOrientation: 0
 --- !u!114 &4937240245938133243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,7 +156,7 @@ MonoBehaviour:
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: My Behavior
+  m_BehaviorName: fish
   TeamId: 0
   m_UseChildSensors: 1
 --- !u!114 &4937240245938133242
@@ -212,18 +186,6 @@ MonoBehaviour:
   maxStomach: 100
   energyConsumptionFactor: 0.01
   currentOrientation: 0
---- !u!114 &4937240245938133244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4937240245938133235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee9d135e805bf7b4a8a7e135101177b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &4937240245938133220
 MonoBehaviour:
   m_ObjectHideFlags: 0
