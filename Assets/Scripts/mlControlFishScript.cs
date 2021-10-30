@@ -35,19 +35,13 @@ public class mlControlFishScript : Agent
 
     // public Transform Target;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //rb = GetComponent<Rigidbody2D>();
-		initialVector = RandomUnitVector();
-		rb.velocity = swimSpeed * initialVector;
-    }
-
     public override void OnEpisodeBegin()
     {
         // Move the target to a new spot
         transform.position = new Vector2(Random.Range(-20,20), Random.Range(-20,20));
         rb = GetComponent<Rigidbody2D>();
+        initialVector = RandomUnitVector();
+        rb.velocity = swimSpeed * initialVector;
         isAlive = true;
         energy = 100f;
         stomach = 0f;
