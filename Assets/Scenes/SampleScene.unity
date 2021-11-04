@@ -906,20 +906,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4937240245938133242, guid: 84ca12ca373ef47408c706f3626bc4d6,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4937240245938133242, guid: 84ca12ca373ef47408c706f3626bc4d6,
-        type: 3}
-      propertyPath: energyConsumptionFactor
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 4937240245938133245, guid: 84ca12ca373ef47408c706f3626bc4d6,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84ca12ca373ef47408c706f3626bc4d6, type: 3}
