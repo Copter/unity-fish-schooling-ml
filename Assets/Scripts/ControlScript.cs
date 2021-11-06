@@ -20,7 +20,7 @@ public class ControlScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Time.timeScale = gameSpeed;
+        //Time.timeScale = gameSpeed;
         fishCount = GameObject.FindGameObjectsWithTag("fish").Length;
     }
 }

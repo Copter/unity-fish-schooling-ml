@@ -61,6 +61,7 @@ public class mlControlFishScript : Agent
         // Agent velocity
         sensor.AddObservation(rb.velocity.x);
         sensor.AddObservation(rb.velocity.y);
+        sensor.AddObservation(this.isAlive ? 1f : -1f);
     }
 
     public override void OnActionReceived(float[] vectorAction)
@@ -168,7 +169,7 @@ public class mlControlFishScript : Agent
     {
         Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
         energy -= (rb.velocity.magnitude) * energyConsumptionFactor;
-        
+        energy -= 0.05f;
         if(energy < (maxEnergy - 1f) && stomach > 0) {
             energy += 1f;
             stomach -= 1f;
@@ -191,15 +192,17 @@ public class mlControlFishScript : Agent
         }
     }
 
-	void OnTriggerStay2D(Collider2D coll)
-    {
-        if (coll.gameObject.tag == "food" && stomach < maxStomach)
-        {
-            coll.gameObject.GetComponent<foodZone>().foodAmount -= 1f;
-            stomach += 1f;
-            isInFoodZone = true;
-        } else {
-            isInFoodZone = false;
-        }
-    }
+    //void OnTriggerStay2D(Collider2D coll)
+    //{
+    //    if (coll.gameObject.tag == "food" && stomach < maxStomach)
+    //    {
+    //        coll.gameObject.GetComponent<foodZone>().foodAmount -= 1f;
+    //        stomach += 1f;
+    //        isInFoodZone = true;
+    //    }
+    //    else
+    //    {
+    //        isInFoodZone = false;
+    //    }
+    //}
 }
