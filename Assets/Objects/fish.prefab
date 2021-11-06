@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 4937240245938133246}
   - component: {fileID: 4937240245938133243}
   - component: {fileID: 4937240245938133242}
+  - component: {fileID: 4937240245938133244}
+  - component: {fileID: 719806315154813322}
   - component: {fileID: 4937240245938133220}
   - component: {fileID: 4937240245938133221}
   m_Layer: 6
@@ -186,6 +188,30 @@ MonoBehaviour:
   maxStomach: 100
   energyConsumptionFactor: 0.01
   currentOrientation: 0
+--- !u!114 &4937240245938133244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4937240245938133235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee9d135e805bf7b4a8a7e135101177b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &719806315154813322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4937240245938133235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a93629acd8b4844b9043c737c9b3066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4937240245938133220
 MonoBehaviour:
   m_ObjectHideFlags: 0
