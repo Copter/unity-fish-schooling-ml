@@ -2,47 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class foodZone : MonoBehaviour
+public class FoodZone : MonoBehaviour
 {
-    public bool randomPositionOnGameStart = true;
     public float foodAmount = 500f;
+    private float foodRadius;
+    public List<FishAgent> fishArray = new List<FishAgent>();
 
     // Start is called before the first frame update
     void Start()
     {
-        if(randomPositionOnGameStart) {
-            transform.position = outerAreaRandom();
-        }
+        this.foodRadius = (float)Random.Range(5, 10);
+        this.transform.localScale = new Vector3(this.foodRadius * 2, this.foodRadius * 2, 1);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(foodAmount <= 0) {
-            transform.position = outerAreaRandom();
-            foodAmount = 500f;
+        if (foodAmount <= 0)
+        {
+            Destroy(this.gameObject);
         }
-        
+
     }
 
-    public Vector3 outerAreaRandom()
+    void OnTriggerStay2D(Collider2D coll)
     {
-        int randomdir = Random.Range(0,4);
-        if(randomdir == 0)
+        if (coll.gameObject.tag == "fish")
         {
-            return new Vector3(Random.Range(-65f,65f), Random.Range(25f,35f), 0); //UP
+            FishAgent fish = coll.gameObject.GetComponent<FishAgent>();
+
+            float consumptionAmount = fish.maxStomach - fish.stomach;
+            if (this.foodAmount > consumptionAmount)
+            {
+                this.foodAmount -= consumptionAmount;
+                fish.stomach += consumptionAmount;
+            }
+            else
+            {
+                fish.stomach += this.foodAmount;
+                this.foodAmount = 0;
+            }
+
         }
-        else if(randomdir == 1)
-        {
-            return new Vector3(Random.Range(-65f,65f), Random.Range(-35f,-25f), 0); //DOWN
-        }
-        else if(randomdir == 2)
-        {
-            return new Vector3(Random.Range(-65f,-25f), Random.Range(-25f,25f), 0); //LEFT
-        }
-        else
-        {
-            return new Vector3(Random.Range(25f,65f), Random.Range(-25f,25f), 0); //RIGHT
-        }
-    } 
+    }
+
+
 }

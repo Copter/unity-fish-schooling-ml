@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class fishCollisionCheck : MonoBehaviour
+public class FishCollisionController : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -20,7 +20,7 @@ public class fishCollisionCheck : MonoBehaviour
     {
         if (coll.gameObject.tag != "food")
         {
-            gameObject.GetComponent<mlControlFishScript>().energy += -10f;
+            gameObject.GetComponent<FishAgent>().energy += -10f;
         }
     }
 }
