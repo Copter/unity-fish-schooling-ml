@@ -50,6 +50,11 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   foodObj: {fileID: 3702775059121821671, guid: ed87831fba52a5e47b34cdd34cde4300, type: 3}
+  foodCountToSpawn: 10
+  gameSpeed: 1
+  fishCount: 0
+  fishCountToSpawnOnGameStart: 99
+  fishObj: {fileID: 4937240245938133235, guid: 84ca12ca373ef47408c706f3626bc4d6, type: 3}
 --- !u!114 &2096437521198649913
 MonoBehaviour:
   m_ObjectHideFlags: 0

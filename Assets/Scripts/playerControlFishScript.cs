@@ -125,7 +125,7 @@ public class playerControlFishScript : MonoBehaviour
     {
         if (coll.gameObject.tag == "food" && stomach < maxStomach)
         {
-            coll.gameObject.GetComponent<foodZone>().foodAmount += -1f;
+            coll.gameObject.GetComponent<FoodZone>().foodAmount += -1f;
             stomach += 1f;
         }
     }
