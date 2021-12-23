@@ -43,7 +43,7 @@ public class EpisodeControl : Agent
 
     }
 
-    public override void OnActionReceived(float[] vectorAction)
+    public /*override*/ void OnActionReceived(float[] vectorAction)
     {
     }
 

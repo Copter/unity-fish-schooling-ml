@@ -179,10 +179,12 @@ MonoBehaviour:
   MaxStep: 0
   isInFoodZone: 0
   timeAlive: 0
+  timeWhenNotHungry: 0
   swimSpeed: 1
   steerStrength: 1
   minimumSpeed: 0.2
   energy: 100
+  energyConversionThreshold: 70
   maxEnergy: 100
   stomach: 0
   maxStomach: 100
@@ -233,7 +235,7 @@ MonoBehaviour:
   m_RayLength: 42
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 448
   m_ObservationStacks: 1
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}

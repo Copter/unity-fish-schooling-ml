@@ -64,7 +64,7 @@ public class FishAgent : Agent
         sensor.AddObservation(this.isAlive ? 1f : -1f);
     }
 
-    public override void OnActionReceived(float[] vectorAction)
+    public /*override*/ void OnActionReceived(float[] vectorAction)
     {
         if(isAlive) {
             float horizontalOutput = vectorAction[0];
@@ -77,7 +77,7 @@ public class FishAgent : Agent
         }
     }
 
-    public override void Heuristic(float[] actionsOut)
+    public /*override*/ void Heuristic(float[] actionsOut)
     {
         actionsOut[0] = Input.GetAxis("Horizontal");
         actionsOut[1] = Input.GetAxis("Vertical");
