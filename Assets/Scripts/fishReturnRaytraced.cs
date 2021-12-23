@@ -11,27 +11,45 @@ public class fishReturnRaytraced : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(PrintReturnEverySecond());
+        //StartCoroutine(PrintReturnEverySecond());
     }
 
     // Update is called once per frame
     void Update()
     {
-        //print(rays.GetRayPerceptionInput());
-        //rays.GetRayPerceptionInput().DetectableTags;
+        string returnedObjectNames = "";
+        RayPerceptionOutput.RayOutput[] rayOutputs = rays.RaySensor.RayPerceptionOutput.RayOutputs;
+        for(int i = 0; i < rayOutputs.Length; i++)
+        {
+            GameObject hitObject = rayOutputs[i].HitGameObject;
+            if (hitObject != null)
+            {
+                returnedObjectNames += hitObject.name + ", ";
+            }
+            else {
+                returnedObjectNames += "-, ";
+            }
+        }
+        print(returnedObjectNames);
     }
-
+/*
     IEnumerator PrintReturnEverySecond()
     {
-        print(rays.GetRayPerceptionInput().OutputSize());
-        print(rays.GetRayPerceptionInput().RayExtents(0));
-        /*
-        foreach(string str in rays.GetRayPerceptionInput().OutputSize())  
+        string returnedObjectNames = "";
+        RayPerceptionOutput.RayOutput[] rayOutputs = rays.RaySensor.RayPerceptionOutput.RayOutputs;
+        for(int i = 0; i < rayOutputs.Length; i++)
         {
-            print(str);
+            GameObject hitObject = rayOutputs[i].HitGameObject;
+            if (hitObject != null)
+            {
+                returnedObjectNames += hitObject + ", ";
+            }
+            else {
+                returnedObjectNames += "-, ";
+            }
         }
-        */
+        print(returnedObjectNames);
         yield return new WaitForSeconds(1);
         StartCoroutine(PrintReturnEverySecond());
-    }
+    }*/
 }
