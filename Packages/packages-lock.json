@@ -31,18 +31,18 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.barracuda": {
-      "version": "2.3.1-preview",
+      "version": "2.0.0-pre.3",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.burst": "1.6.0",
+        "com.unity.burst": "1.3.4",
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.6.0",
+      "version": "1.3.4",
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -100,15 +100,15 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ml-agents": {
-      "version": "https://github.com/Unity-Technologies/ml-agents.git?path=/com.unity.ml-agents/",
+      "version": "https://github.com/Unity-Technologies/ml-agents.git?path=/com.unity.ml-agents/#release_18",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.unity.barracuda": "2.3.1-preview",
+        "com.unity.barracuda": "2.0.0-pre.3",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
       },
-      "hash": "57014c8f9016110750b880e23040cf78496da396"
+      "hash": "c1b26d49e4f4fc692c2688531f9e7c69dba12682"
     },
     "com.unity.nuget.newtonsoft-json": {
       "version": "2.0.0",
