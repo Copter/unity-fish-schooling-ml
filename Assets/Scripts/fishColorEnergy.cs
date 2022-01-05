@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class fishColorEnergy : MonoBehaviour
+public class FishColorEnergy : MonoBehaviour
 {
     // Update is called once per frame
     void Update()
     {
-        gameObject.GetComponent<SpriteRenderer>().color=new Color(1, gameObject.GetComponent<FishAgent>().energy/100f, gameObject.GetComponent<FishAgent>().energy/100f, 1);
+        var health = gameObject.GetComponent<FishAgent>().energy / 100f;
+        gameObject.GetComponent<SpriteRenderer>().color=new Color(1, health, health, 1);
     }
 }
