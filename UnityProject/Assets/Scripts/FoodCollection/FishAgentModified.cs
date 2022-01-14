@@ -37,6 +37,9 @@ public class FishAgentModified : Agent
 
     EnvironmentParameters m_ResetParams;
 
+    RayPerceptionSensorComponent2D rays;
+    public bool printWhatISee;
+
 
     public override void Initialize()
     {
@@ -44,6 +47,8 @@ public class FishAgentModified : Agent
         m_ResetParams = Academy.Instance.EnvironmentParameters;
         rb = GetComponent<Rigidbody2D>();
         SetResetParameters();
+
+        rays = gameObject.GetComponent<RayPerceptionSensorComponent2D>();
     }
 
     public void SetResetParameters()
@@ -73,6 +78,23 @@ public class FishAgentModified : Agent
         // Agent velocity
         sensor.AddObservation(localVelocity.x);
         sensor.AddObservation(localVelocity.y);
+
+        if(printWhatISee){
+            string returnedObjectNames = "";
+            RayPerceptionOutput.RayOutput[] rayOutputs = rays.RaySensor.RayPerceptionOutput.RayOutputs;
+            for(int i = 0; i < rayOutputs.Length; i++)
+            {
+                GameObject hitObject = rayOutputs[i].HitGameObject;
+                if (hitObject != null)
+                {
+                    returnedObjectNames += hitObject.name + ", ";
+                }
+                else {
+                    returnedObjectNames += "-, ";
+                }
+            }
+            print(returnedObjectNames);
+        }
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)

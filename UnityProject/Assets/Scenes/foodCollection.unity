@@ -378,6 +378,7 @@ MonoBehaviour:
   totalScore: 0
   totalAgentHitCount: 0
   totalWallHitCount: 0
+  timeScale: 10
   scoreText: {fileID: 1161362563}
 --- !u!4 &1073047100
 Transform:
@@ -714,6 +715,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1174190728355092318, guid: 9f25d22a15f26e64b8254e5c75e4dcc7,
+        type: 3}
+      propertyPath: printWhatISee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1437516822094933349, guid: 9f25d22a15f26e64b8254e5c75e4dcc7,
         type: 3}
       propertyPath: m_Name
