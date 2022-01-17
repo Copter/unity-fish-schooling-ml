@@ -8,15 +8,16 @@ TagManager:
   - food
   - wall
   - agent
+  - shark
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Fish
   - Water
   - UI
-  - 
-  - 
+  - Food
+  - Shark
   - Wall
   - 
   - 

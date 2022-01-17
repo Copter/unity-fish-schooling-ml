@@ -240,5 +240,16 @@ public class FishAgentModified : Agent
             m_FoodCollecterSettings.totalScore -= 5;
             AddReward(-5f);
         }
+
+        if (collision.gameObject.CompareTag("shark"))
+        {
+            energy = 0f;
+            stomach = 0f;
+            /*
+            m_FoodCollecterSettings.totalAgentHitCount += 1;
+            m_FoodCollecterSettings.totalScore -= 5;
+            AddReward(-5f);
+            */
+        }
     }
 }
