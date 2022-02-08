@@ -649,7 +649,7 @@ PrefabInstance:
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}
       propertyPath: rayLength
-      value: 42
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}
@@ -659,7 +659,7 @@ PrefabInstance:
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}
       propertyPath: rayThickness
-      value: 8
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}

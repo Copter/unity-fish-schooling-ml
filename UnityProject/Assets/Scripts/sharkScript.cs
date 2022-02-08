@@ -14,9 +14,13 @@ public class sharkScript : MonoBehaviour
     public float rayLength = 42f;
     public float rayThickness = 20f;
     public LayerMask rayLayerMask;
+    public float raysAngleDeg = 30f;
     RaycastHit2D priorityHit;
+    RaycastHit2D leftRayHit;
+    RaycastHit2D rightRayHit;
     public bool editTankCenterPos = false;
     public Vector3 tankCenterPos;
+    
 
 
     //public RayPerceptionSensorComponent2D rays;
@@ -56,10 +60,16 @@ public class sharkScript : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
         }
 
-        Debug.DrawRay(transform.position, transform.TransformDirection(Vector2.up) * rayLength);
-
         //RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.TransformDirection(Vector2.up), rayLength, rayLayerMask);    // ~LayerMask.NameToLayer ("Food")
+        float raysAngleRad = raysAngleDeg * Mathf.Deg2Rad;
+        
         RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(Vector2.up), rayLength, rayLayerMask);
+        RaycastHit2D[] hitsL = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(new Vector2(-Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))), rayLength, rayLayerMask);
+        RaycastHit2D[] hitsR = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(new Vector2(Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))), rayLength, rayLayerMask);
+
+        Debug.DrawRay(transform.position, transform.TransformDirection(Vector2.up) * rayLength);
+        Debug.DrawRay(transform.position, transform.TransformDirection(new Vector2(Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))) * rayLength);
+        Debug.DrawRay(transform.position, transform.TransformDirection(new Vector2(-Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))) * rayLength);
 
         if (hits.Length > 0) 
         {
@@ -78,6 +88,32 @@ public class sharkScript : MonoBehaviour
                 }
             }
 
+            foreach(RaycastHit2D hit in hitsL)
+            {
+                if(hit.collider.gameObject.tag == "agent")
+                {
+                    leftRayHit = hit;
+                    break;
+                }
+                else if(hit.collider.gameObject.tag == "wall") 
+                {
+                    leftRayHit = hit;
+                }
+            }
+
+            foreach(RaycastHit2D hit in hitsR)
+            {
+                if(hit.collider.gameObject.tag == "agent")
+                {
+                    rightRayHit = hit;
+                    break;
+                }
+                else if(hit.collider.gameObject.tag == "wall") 
+                {
+                    rightRayHit = hit;
+                }
+            }
+
             
             //if (hit) 
             //{
@@ -91,14 +127,14 @@ public class sharkScript : MonoBehaviour
                     var relativePoint = transform.InverseTransformPoint(TargetObjTransform.position);
                     if (relativePoint.x < -1f) 
                     {
-                        print (priorityHit.collider.name + " is to the left");
+                        print (priorityHit.collider.name + " is slightly left");
                         Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
                         steerDirVector = steerDirVector.normalized * steerStrength;
                         rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
                     } 
                     else if (relativePoint.x > 1f) 
                     {
-                        print (priorityHit.collider.name + " is to the right");
+                        print (priorityHit.collider.name + " is slightly right");
                         Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
                         steerDirVector = steerDirVector.normalized * steerStrength;
                         rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
@@ -111,6 +147,36 @@ public class sharkScript : MonoBehaviour
 
                     transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
                 }
+                else if(leftRayHit.collider.gameObject.tag == "agent") 
+                {
+                    print (priorityHit.collider.name + " is to the left");
+                    Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
+                    steerDirVector = steerDirVector.normalized * steerStrength;
+                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                }
+                else if(rightRayHit.collider.gameObject.tag == "agent") 
+                {
+                    print (priorityHit.collider.name + " is to the right");
+                    Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
+                    steerDirVector = steerDirVector.normalized * steerStrength;
+                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                }
+                /*
+                else if(leftRayHit.collider.gameObject.tag == "wall") 
+                {
+                    print (priorityHit.collider.name + " is to the left, avoiding it.");
+                    Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
+                    steerDirVector = steerDirVector.normalized * steerStrength;
+                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                }
+                else if(rightRayHit.collider.gameObject.tag == "wall") 
+                {
+                    print (priorityHit.collider.name + " is to the right, avoiding it.");
+                    Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
+                    steerDirVector = steerDirVector.normalized * steerStrength;
+                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                }
+                */
                 else if(priorityHit.collider.gameObject.tag == "wall")
                 {
                     //if(priorityHit.distance <= 10f) {
