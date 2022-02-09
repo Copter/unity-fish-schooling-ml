@@ -659,7 +659,12 @@ PrefabInstance:
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}
       propertyPath: rayThickness
-      value: 2
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
+        type: 3}
+      propertyPath: raysAngleDeg
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}
@@ -685,6 +690,11 @@ PrefabInstance:
         type: 3}
       propertyPath: IgnoreLayer.m_Bits
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
+        type: 3}
+      propertyPath: centerRayThickness
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1685624357358136009, guid: 43661118892a970459dd705cff67b5a0,
         type: 3}
@@ -940,6 +950,11 @@ PrefabInstance:
         type: 3}
       propertyPath: respawnFood
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2019097897662433432, guid: 9f25d22a15f26e64b8254e5c75e4dcc7,
+        type: 3}
+      propertyPath: m_MaxRayDegrees
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 6111114107837622029, guid: 9f25d22a15f26e64b8254e5c75e4dcc7,
         type: 3}

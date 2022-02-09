@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
-
 
 public class sharkScript : MonoBehaviour
 {
@@ -13,15 +11,16 @@ public class sharkScript : MonoBehaviour
     public bool playerControlled = false;
     public float rayLength = 42f;
     public float rayThickness = 20f;
+    public float centerRayThickness = 1f;
     public LayerMask rayLayerMask;
     public float raysAngleDeg = 30f;
-    RaycastHit2D priorityHit;
-    RaycastHit2D leftRayHit;
-    RaycastHit2D rightRayHit;
+    RaycastHit2D priorityHit;   //Center ray
+    RaycastHit2D leftRayHit;    //Leftmost Ray 
+    RaycastHit2D rightRayHit;   //Rightmost Ray
+    RaycastHit2D leftRay2Hit;
+    RaycastHit2D rightRay2Hit;
     public bool editTankCenterPos = false;
     public Vector3 tankCenterPos;
-    
-
 
     //public RayPerceptionSensorComponent2D rays;
 
@@ -63,18 +62,22 @@ public class sharkScript : MonoBehaviour
         //RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.TransformDirection(Vector2.up), rayLength, rayLayerMask);    // ~LayerMask.NameToLayer ("Food")
         float raysAngleRad = raysAngleDeg * Mathf.Deg2Rad;
         
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(Vector2.up), rayLength, rayLayerMask);
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position, centerRayThickness, transform.TransformDirection(Vector2.up), rayLength, rayLayerMask);
         RaycastHit2D[] hitsL = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(new Vector2(-Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))), rayLength, rayLayerMask);
         RaycastHit2D[] hitsR = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(new Vector2(Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))), rayLength, rayLayerMask);
+        RaycastHit2D[] hitsL2 = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(new Vector2(-Mathf.Sin(raysAngleRad/2), Mathf.Cos(raysAngleRad/2))), rayLength, rayLayerMask);
+        RaycastHit2D[] hitsR2 = Physics2D.CircleCastAll(transform.position, rayThickness, transform.TransformDirection(new Vector2(Mathf.Sin(raysAngleRad/2), Mathf.Cos(raysAngleRad/2))), rayLength, rayLayerMask);
 
         Debug.DrawRay(transform.position, transform.TransformDirection(Vector2.up) * rayLength);
         Debug.DrawRay(transform.position, transform.TransformDirection(new Vector2(Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))) * rayLength);
         Debug.DrawRay(transform.position, transform.TransformDirection(new Vector2(-Mathf.Sin(raysAngleRad), Mathf.Cos(raysAngleRad))) * rayLength);
+        Debug.DrawRay(transform.position, transform.TransformDirection(new Vector2(Mathf.Sin(raysAngleRad/2), Mathf.Cos(raysAngleRad/2))) * rayLength);
+        Debug.DrawRay(transform.position, transform.TransformDirection(new Vector2(-Mathf.Sin(raysAngleRad/2), Mathf.Cos(raysAngleRad/2))) * rayLength);
 
         if (hits.Length > 0) 
         {
             //RaycastHit2D hit = hits[0];
-            
+
             foreach(RaycastHit2D hit in hits)
             {
                 if(hit.collider.gameObject.tag == "agent")
@@ -114,6 +117,32 @@ public class sharkScript : MonoBehaviour
                 }
             }
 
+            foreach(RaycastHit2D hit in hitsL2)
+            {
+                if(hit.collider.gameObject.tag == "agent")
+                {
+                    leftRay2Hit = hit;
+                    break;
+                }
+                else if(hit.collider.gameObject.tag == "wall") 
+                {
+                    leftRay2Hit = hit;
+                }
+            }
+
+            foreach(RaycastHit2D hit in hitsR2)
+            {
+                if(hit.collider.gameObject.tag == "agent")
+                {
+                    rightRay2Hit = hit;
+                    break;
+                }
+                else if(hit.collider.gameObject.tag == "wall") 
+                {
+                    rightRay2Hit = hit;
+                }
+            }
+
             
             //if (hit) 
             //{
@@ -128,16 +157,12 @@ public class sharkScript : MonoBehaviour
                     if (relativePoint.x < -1f) 
                     {
                         print (priorityHit.collider.name + " is slightly left");
-                        Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
-                        steerDirVector = steerDirVector.normalized * steerStrength;
-                        rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                        turnLeft();
                     } 
                     else if (relativePoint.x > 1f) 
                     {
                         print (priorityHit.collider.name + " is slightly right");
-                        Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
-                        steerDirVector = steerDirVector.normalized * steerStrength;
-                        rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                        turnRight();
                     } 
                     else 
                     {
@@ -147,34 +172,36 @@ public class sharkScript : MonoBehaviour
 
                     transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
                 }
-                else if(leftRayHit.collider.gameObject.tag == "agent") 
+                else if(hitsL.Length > 0 && leftRayHit.collider.gameObject.tag == "agent") 
                 {
-                    print (priorityHit.collider.name + " is to the left");
-                    Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
-                    steerDirVector = steerDirVector.normalized * steerStrength;
-                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                    print (leftRayHit.collider.name + " is far left");
+                    turnLeft();
                 }
-                else if(rightRayHit.collider.gameObject.tag == "agent") 
+                else if(hitsR.Length > 0 && rightRayHit.collider.gameObject.tag == "agent") 
                 {
-                    print (priorityHit.collider.name + " is to the right");
-                    Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
-                    steerDirVector = steerDirVector.normalized * steerStrength;
-                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                    print (rightRayHit.collider.name + " is far right");
+                    turnRight();
+                }
+                else if(hitsL2.Length > 0 && leftRay2Hit.collider.gameObject.tag == "agent") 
+                {
+                    print (leftRay2Hit.collider.name + " is to the left");
+                    turnLeft();
+                }
+                else if(hitsR2.Length > 0 && rightRay2Hit.collider.gameObject.tag == "agent") 
+                {
+                    print (rightRay2Hit.collider.name + " is to the right");
+                    turnRight();
                 }
                 /*
                 else if(leftRayHit.collider.gameObject.tag == "wall") 
                 {
                     print (priorityHit.collider.name + " is to the left, avoiding it.");
-                    Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
-                    steerDirVector = steerDirVector.normalized * steerStrength;
-                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                    turnRight();
                 }
                 else if(rightRayHit.collider.gameObject.tag == "wall") 
                 {
                     print (priorityHit.collider.name + " is to the right, avoiding it.");
-                    Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
-                    steerDirVector = steerDirVector.normalized * steerStrength;
-                    rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                    turnLeft();
                 }
                 */
                 else if(priorityHit.collider.gameObject.tag == "wall")
@@ -185,15 +212,11 @@ public class sharkScript : MonoBehaviour
                     var relativePoint = transform.InverseTransformPoint(tankCenterPos); //Vector3.zero
                     if (relativePoint.x < -1f) 
                     {
-                        Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
-                        steerDirVector = steerDirVector.normalized * steerStrength;
-                        rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                        turnLeft();
                     } 
                     else if (relativePoint.x > 1f) 
                     {
-                        Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
-                        steerDirVector = steerDirVector.normalized * steerStrength;
-                        rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+                        turnRight();
                     } 
                     else 
                     {
@@ -217,4 +240,37 @@ public class sharkScript : MonoBehaviour
 		float randomAngle = Random.Range(0f, 360f);
 		return new Vector2(Mathf.Cos(randomAngle), Mathf.Sin(randomAngle));
 	}
+
+    public void turnLeft()
+    {
+        Vector2 steerDirVector = new Vector2(-rb.velocity.y, rb.velocity.x);
+        steerDirVector = steerDirVector.normalized * steerStrength;
+        rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+    }
+
+    public void turnRight()
+    {
+        Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
+        steerDirVector = steerDirVector.normalized * steerStrength;
+        rb.velocity = steerDirVector + (swimSpeed * rb.velocity.normalized);
+    }
+
+    /*
+    RaycastHit2D resultHit;
+    public RaycastHit2D rayHitAgentOrWall(RaycastHit2D[] arrayOfHits)
+    {
+        foreach(RaycastHit2D hit in arrayOfHits)
+        {
+            if(hit.collider.gameObject.tag == "agent")
+            {
+                return(resultHit);
+            }
+            else if(hit.collider.gameObject.tag == "wall")
+            {
+                resultHit = hit;
+            }
+        }
+        return(resultHit);
+    }
+    */
 }
