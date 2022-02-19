@@ -3,15 +3,15 @@ using UnityEngine;
 public class FoodLogic : MonoBehaviour
 {
     public bool respawn;
-    public FishTank myArea;
+    public FoodCluster myCluster;
 
     public void OnEaten()
     {
         if (respawn)
         {
-            transform.position = new Vector3(Random.Range(-myArea.range, myArea.range),
-                Random.Range(-myArea.range, myArea.range),
-                200f) + myArea.transform.position;
+            transform.position = new Vector3(Random.Range(-myCluster.width/2, myCluster.width/2),
+                Random.Range(-myCluster.height/2, myCluster.height/2),
+                200f) + myCluster.transform.position;
         }
         else
         {

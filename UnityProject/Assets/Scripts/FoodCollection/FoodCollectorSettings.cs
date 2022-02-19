@@ -14,23 +14,36 @@ public class FoodCollectorSettings : MonoBehaviour
     public int totalWallHitCount;
     public int timeScale = 10;
     public Text scoreText;
+    public float defaultClusterLevel = 1f;
 
     StatsRecorder m_Recorder;
+    EnvironmentParameters m_ResetParams;
+
+    private float cluster_level;
 
     public void Awake()
     {
         Academy.Instance.OnEnvironmentReset += EnvironmentReset;
+        m_ResetParams = Academy.Instance.EnvironmentParameters;
         m_Recorder = Academy.Instance.StatsRecorder;
     }
 
     void EnvironmentReset()
     {
+        cluster_level = m_ResetParams.GetWithDefault("food_cluster", defaultClusterLevel);
+        Debug.Log("cluster level: " + cluster_level);
         ClearObjects(GameObject.FindGameObjectsWithTag("food"));
+        ClearObjects(GameObject.FindGameObjectsWithTag("food_cluster"));
         agents = GameObject.FindGameObjectsWithTag("agent");
         listArea = FindObjectsOfType<FishTank>();
+        FoodCluster[] listCluster = FindObjectsOfType<FoodCluster>();
+        foreach (var cluster in listCluster)
+        {
+            Destroy(cluster.gameObject);
+        }
         foreach (var fa in listArea)
         {
-            fa.ResetFoodArea(agents);
+            fa.ResetTank(agents, cluster_level);
         }
 
         totalScore = 0;

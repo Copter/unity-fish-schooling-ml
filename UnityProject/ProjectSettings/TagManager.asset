@@ -8,6 +8,7 @@ TagManager:
   - food
   - wall
   - agent
+  - food_cluster
   layers:
   - Default
   - TransparentFX

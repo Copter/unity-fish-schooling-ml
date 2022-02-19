@@ -2,13 +2,16 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
+using System.Collections;
+using System.Collections.Generic;
 
-public class FishAgentModified : Agent
+public class FishAgent : Agent
 {
 
     //public bool allowKeyboardControl = false;
+    public bool observe = false;
     FoodCollectorSettings m_FoodCollecterSettings;
-
+    BufferSensorComponent m_BufferSensor;
     private bool isAlive = true;
     public bool isInFoodZone = false;
 
@@ -22,13 +25,18 @@ public class FishAgentModified : Agent
     public float minimumSpeed = 0.2f;
     public float maximumSpeed = 25f;
 
-    public float energy = 100f;
+    public float visibleRadius = 42f;
+
+    public float energy;
     public float energyConversionThreshold = 70f;
     public float maxEnergy = 100f;
-    public float stomach = 0f;
+    public float stomach;
     public float maxStomach = 100f;
-
     public float energyConsumptionFactor = 0.001f;
+    public int foodEaten;
+
+    
+    
 
     // The factor of the rate which energy is consumed.
 
@@ -44,6 +52,7 @@ public class FishAgentModified : Agent
         m_ResetParams = Academy.Instance.EnvironmentParameters;
         rb = GetComponent<Rigidbody2D>();
         SetResetParameters();
+        m_BufferSensor = GetComponent<BufferSensorComponent>();
     }
 
     public void SetResetParameters()
@@ -61,6 +70,7 @@ public class FishAgentModified : Agent
         energy = 100f;
         stomach = 0f;
         timeAlive = 0;
+        foodEaten = 0;
         timeWhenNotHungry = 0;
     }
 
@@ -69,19 +79,41 @@ public class FishAgentModified : Agent
         var localVelocity = transform.InverseTransformDirection(rb.velocity);
 
         // Hungry = -1, NotHungry = 1
-        sensor.AddObservation(this.stomach > 0 ? 1f : -1f);
+        sensor.AddObservation(this.stomach >= 70 ? 1f : -1f);
         // Agent velocity
         sensor.AddObservation(localVelocity.x);
         sensor.AddObservation(localVelocity.y);
+
+        List<Vector2> neighborPositionOffsets = ScanEnvironment();
+
+        foreach(Vector2 offset in neighborPositionOffsets){
+            float[] pos = {offset.x, offset.y};
+            if(observe){
+            }
+            m_BufferSensor.AppendObservation(pos);
+        }
+    }
+
+    private List<Vector2> ScanEnvironment(){
+        FishTank tank = transform.parent.GetComponent<FishTank>();
+        if(tank.fishes == null) return new List<Vector2>();
+        Vector3 selfPosition = this.transform.position;
+        Vector3 flockCenter = new Vector3(0,0,0);
+        List<Vector2> neighborPositionOffsets = new List<Vector2>();
+        foreach(Transform fish in tank.fishes){
+            Vector3 neighborFishPosition = fish.position;
+            Vector3 offset =  neighborFishPosition - selfPosition;
+            float sqrtDst = offset.x * offset.x + offset.y * offset.y;
+            if(sqrtDst < visibleRadius * visibleRadius){
+                neighborPositionOffsets.Add(new Vector2(offset.x, offset.y));
+            }
+        }
+        return neighborPositionOffsets;
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         MoveAgent(actionBuffers);
-        if (stomach < 1f && MaxStep > 0)
-        {
-            AddReward(-1f / MaxStep);
-        }
     }
 
     public void MoveAgent(ActionBuffers actionBuffers)
@@ -136,6 +168,10 @@ public class FishAgentModified : Agent
     {
         var health = energy / 100f;
         GetComponent<SpriteRenderer>().color = new Color(1, health, health, 1);
+        if (stomach < 70 && MaxStep > 0)
+        {
+            AddReward(-0.01f);
+        }
     }
 
     void FixedUpdate()
@@ -164,7 +200,6 @@ public class FishAgentModified : Agent
             if (this.stomach >= this.maxEnergy - this.energy)
             {
                 conversionAmount = this.maxEnergy - this.energy;
-                conversionAmount = this.maxEnergy - this.energy;
             }
             else
             {
@@ -191,6 +226,11 @@ public class FishAgentModified : Agent
     void Satiate()
     {
         this.stomach = this.maxStomach;
+        this.foodEaten += 1;
+        if(foodEaten == 15)
+        {
+            EndEpisode();
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -201,6 +241,17 @@ public class FishAgentModified : Agent
             collision.gameObject.GetComponent<FoodLogic>().OnEaten();
             m_FoodCollecterSettings.totalScore += 1;
             AddReward(1f);
+            // if (this.stomach < 70)
+            // {
+            //     m_FoodCollecterSettings.totalScore += 1;
+            //     AddReward(1f);
+            // }
+            // else
+            // {
+            //     m_FoodCollecterSettings.totalScore -= 1;
+            //     AddReward(-1f);
+            // }
+
         }
 
         if (collision.gameObject.CompareTag("wall"))

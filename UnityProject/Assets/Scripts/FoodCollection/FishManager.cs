@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FishCollisionController : MonoBehaviour
+public class FishManager : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -14,13 +14,5 @@ public class FishCollisionController : MonoBehaviour
     void Update()
     {
         
-    }
-
-    void OnCollisionStay2D(Collision2D coll)
-    {
-        if (coll.gameObject.tag != "food")
-        {
-            gameObject.GetComponent<FishAgent>().energy += -10f;
-        }
     }
 }

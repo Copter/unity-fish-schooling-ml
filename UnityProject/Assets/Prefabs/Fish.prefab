@@ -12,10 +12,11 @@ GameObject:
   - component: {fileID: 5133008504439010615}
   - component: {fileID: 5133008504439010608}
   - component: {fileID: 5133008504439010609}
-  - component: {fileID: 5133008504439010612}
   - component: {fileID: 5133008504439010603}
+  - component: {fileID: 6416805356586632257}
+  - component: {fileID: 5133008504439010612}
   - component: {fileID: 268111312988998678}
-  - component: {fileID: 268111312988998674}
+  - component: {fileID: 7053516205840321992}
   m_Layer: 0
   m_Name: Fish
   m_TagString: agent
@@ -135,6 +136,48 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &5133008504439010603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5133008504439010620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67c7e722ba14acd9153bb4488bff6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: RayPerceptionSensor
+  m_DetectableTags:
+  - food
+  - wall
+  - agent
+  m_RaysPerDirection: 5
+  m_MaxRayDegrees: 72.7
+  m_SphereCastRadius: 0
+  m_RayLength: 42
+  m_RayLayerMask:
+    serializedVersion: 2
+    m_Bits: 257
+  m_ObservationStacks: 1
+  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
+  rayMissColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &6416805356586632257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5133008504439010620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8012d5925524537b27131fef517017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: BufferSensor
+  m_ObservableSize: 2
+  m_MaxNumObservables: 24
 --- !u!114 &5133008504439010612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +200,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 53e0aba66565fad4c899b16932bb1709, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: e6dd5b939026ee746b65abfe95ebd8f9, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishFoodCollector
@@ -165,33 +208,6 @@ MonoBehaviour:
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
---- !u!114 &5133008504439010603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f67c7e722ba14acd9153bb4488bff6e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SensorName: RayPerceptionSensor
-  m_DetectableTags:
-  - food
-  - wall
-  - agent
-  m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
-  m_SphereCastRadius: 0.84
-  m_RayLength: 42
-  m_RayLayerMask:
-    serializedVersion: 2
-    m_Bits: 257
-  m_ObservationStacks: 1
-  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
-  rayMissColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &268111312988998678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,7 +222,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DecisionPeriod: 5
   TakeActionsBetweenDecisions: 1
---- !u!114 &268111312988998674
+--- !u!114 &7053516205840321992
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -222,6 +238,7 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
+  observe: 0
   isInFoodZone: 0
   timeAlive: 0
   timeWhenNotHungry: 0
@@ -229,10 +246,12 @@ MonoBehaviour:
   steerStrength: 25
   minimumSpeed: 0.2
   maximumSpeed: 25
-  energy: 100
+  visibleRadius: 30
+  energy: 0
   energyConversionThreshold: 70
   maxEnergy: 100
   stomach: 0
   maxStomach: 100
-  energyConsumptionFactor: 0.005
+  energyConsumptionFactor: 0.001
+  foodEaten: 0
   currentOrientation: 0
