@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 343799951213943844}
   - component: {fileID: 343799951213943851}
   - component: {fileID: 343799951213943850}
-  - component: {fileID: 343799951213943849}
-  m_Layer: 0
-  m_Name: Food
+  - component: {fileID: -6869874288348298158}
+  m_Layer: 7
+  m_Name: FoodSF
   m_TagString: food
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,7 +133,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &343799951213943849
+--- !u!114 &-6869874288348298158
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -142,8 +142,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 343799951213943855}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0e66c92905c9c84cb0eabcc250068c5, type: 3}
+  m_Script: {fileID: 11500000, guid: 096314c2aa85fdb428c5383414a2073a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  respawn: 1
-  myArea: {fileID: 0}
+  respawn: 0
+  myCluster: {fileID: 0}

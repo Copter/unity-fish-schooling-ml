@@ -8,10 +8,8 @@ public class FishTank : MonoBehaviour
     public int numCluster;
     public bool respawnCluster;
     public float fishSpawnRange;
-    public float wallScale;
     private List<GameObject> foodClusters = new List<GameObject>();
     private EnvironmentParameters m_ResetParams;
-
     public List<Transform> fishes = new List<Transform>();
 
     private void Start()
