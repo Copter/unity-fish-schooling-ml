@@ -79,7 +79,7 @@ public class FishSFAgent : Agent
         if(neighborFishes.Count < neighborCount){
             float difference = neighborCount - neighborFishes.Count;
             //negative reward punishment for losing neighbors
-            AddReward(-difference * 0.3f);
+            AddReward(-difference * 0.1f);
             m_FoodCollectorSettings.totalScore -= difference;
         }
         neighborCount = neighborFishes.Count;

@@ -34,7 +34,7 @@ environment_parameters:
                   min_lesson_length: 100
                   threshold: 6.0
                   require_reset: true
-              value: 0.5
+              value: 0.4
             - name: Lesson1
               completion_criteria:
                   measure: reward

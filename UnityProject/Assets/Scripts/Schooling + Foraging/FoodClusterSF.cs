@@ -8,7 +8,8 @@ public class FoodClusterSF : MonoBehaviour
     public bool respawnFood;
     public float width;
     public float height;
-    public int totalFoodAmount = 30;
+    public const int maxFoodAmount = 300;
+    public int totalFoodAmount = maxFoodAmount;
     private float x;
     private float y;
     private List<GameObject>foodArray = new List<GameObject>();
@@ -47,7 +48,7 @@ public class FoodClusterSF : MonoBehaviour
             transform.position = new Vector3(Random.Range(-widthRange / 2, widthRange / 2), Random.Range(-heightRange / 2, heightRange / 2),
                     200f) + myTank.transform.position;
             CreateFood(20, food);
-            totalFoodAmount = 30;
+            totalFoodAmount = maxFoodAmount;
         }
     }
 

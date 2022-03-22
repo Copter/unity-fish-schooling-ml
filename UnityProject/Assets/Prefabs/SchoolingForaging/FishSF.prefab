@@ -199,7 +199,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 943c6db2087fb53468c2814ca6df295e, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: e2f85716fb2497947b488c5a400cfcab, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF
