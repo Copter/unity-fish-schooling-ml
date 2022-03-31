@@ -8,7 +8,7 @@ public class FoodClusterSF : MonoBehaviour
     public bool respawnFood;
     public float width;
     public float height;
-    public const int maxFoodAmount = 100;
+    public const int maxFoodAmount = 300;
     public int totalFoodAmount = maxFoodAmount;
     public int foodSpawnCap = 20;
     private float x;

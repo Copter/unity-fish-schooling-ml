@@ -21,7 +21,7 @@ public class FishSFAgent : Agent
     private int neighborCount = 0;
     private int foodEaten = 0;
     public List<NeighborFish> neighborFishes = new List<NeighborFish>();
-    private float eatReward = 7.5f;
+    private float eatReward = 5f;
     private float loseNeighborReward = -0.35f;
     private float wallCrashReward = -3f;
     private float neighborCrashReward = -3f;
@@ -92,7 +92,7 @@ public class FishSFAgent : Agent
         neighborCount = neighborFishes.Count;
         
         foreach(NeighborFish fish in neighborFishes){
-            float[] neighborFishData = {fish.PosX, fish.PosY, fish.VelocityX, fish.VelocitY};
+            float[] neighborFishData = {fish.PosX, fish.PosY, fish.VelocityX, fish.VelocitY, fish.FishTransform.GetComponent<FishSFAgent>().foodSensoryIntensity};
             if(observe){
             }
             m_BufferSensor.AppendObservation(neighborFishData);
@@ -138,6 +138,7 @@ public class FishSFAgent : Agent
             }
         }
         if(!foodVisible) this.foodSensoryIntensity = maxFoodIntensity * 0.8f;
+        if(this.foodSensoryIntensity < 0.1f) this.foodSensoryIntensity = 0;
         
         return tempNeighborFishes;
     }
@@ -217,7 +218,6 @@ public class FishSFAgent : Agent
         // }
         neighborFishes= ScanEnvironment();
     }
-
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("food"))
@@ -237,6 +237,9 @@ public class FishSFAgent : Agent
             m_FoodCollectorSettings.totalScore += eatReward;
             AddReward(eatReward);
         }
+    }
+    void OnCollisionEnter2D(Collision2D collision)
+    {
         if (collision.gameObject.CompareTag("wall"))
         {
             m_FoodCollectorSettings.totalWallHitCount += 1;

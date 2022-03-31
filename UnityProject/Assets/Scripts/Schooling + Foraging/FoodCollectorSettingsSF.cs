@@ -90,7 +90,12 @@ public class FoodCollectorSettingsSF : MonoBehaviour
 
     public void Update()
     {
-        scoreText.text = $"TotalScore: {totalScore}\nTotalWallHit: {totalWallHitCount}\nTotalAgentHit: {totalAgentHitCount}\nAvgNeighborCount: {avgNeighbors}\n";
+        float averageGroupSize = 0f;
+        foreach(int size in fishGroups){
+            averageGroupSize += size;
+        }
+        averageGroupSize = averageGroupSize / fishGroups.Count;
+        scoreText.text = $"TotalScore: {totalScore}\nTotalWallHit: {totalWallHitCount}\nTotalAgentHit: {totalAgentHitCount}\nAvgNeighborCount: {avgNeighbors}\nAvgGroupSize: {averageGroupSize}\n";
         Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
         foreach(KeyValuePair<int, int> entry in groupings){
             scoreText.text += $"\ngroup of {entry.Key} : {entry.Value}";
@@ -98,8 +103,10 @@ public class FoodCollectorSettingsSF : MonoBehaviour
         // Send stats via SideChannel so that they'll appear in TensorBoard.
         // These values get averaged every summary_frequency steps, so we don't
         // need to send every Update() call.
+
         if ((Time.frameCount % 100) == 0)
         {
+            m_Recorder.Add("Agent/avgGroupSize", averageGroupSize);
             m_Recorder.Add("Agent/TotalScore", totalScore);
             m_Recorder.Add("Agent/TotalWallHit", totalWallHitCount);
             m_Recorder.Add("Agent/TotalAgentHit", totalAgentHitCount);

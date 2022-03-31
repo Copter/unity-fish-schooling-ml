@@ -505,7 +505,7 @@ MonoBehaviour:
   defaultClusterLevel: 0.4
   renderVisionConeSelected: 0
   renderNeighborSensorSelected: 0
-  renderNeighborRaySelected: 1
+  renderNeighborRaySelected: 0
   renderNeighborRayAll: 0
 --- !u!4 &312968963
 Transform:
