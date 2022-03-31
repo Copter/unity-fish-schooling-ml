@@ -5,19 +5,6 @@ using Unity.MLAgents.Actuators;
 using System.Collections;
 using System.Collections.Generic;
 
-struct NeighborFish {
-    public NeighborFish(float posX, float posY, float velocityX, float velocitY){
-        PosX = posX;
-        PosY = posY;
-        VelocityX = velocityX;
-        VelocitY = velocitY;
-    }
-    public float PosX{get;}
-    public float PosY{get;}
-    public float VelocityX {get;}
-    public float VelocitY {get;}
-}
-
 public class FishSchoolingAgent : Agent
 {
 

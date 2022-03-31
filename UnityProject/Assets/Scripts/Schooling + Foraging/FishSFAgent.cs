@@ -4,6 +4,7 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 
 public class FishSFAgent : Agent
 {
@@ -25,7 +26,14 @@ public class FishSFAgent : Agent
     private int neighborCount = 0;
 
     private int foodEaten = 0;
-    
+
+    public List<NeighborFish> neighborFishes = new List<NeighborFish>();
+
+    private float eatReward = 7.5f;
+    private float loseNeighborReward = -0.35f;
+    private float wallCrashReward = -3f;
+    private float neighborCrashReward = -3f;
+
 
     // The factor of the rate which energy is consumed.
 
@@ -72,14 +80,12 @@ public class FishSFAgent : Agent
         // sensor.AddObservation(clusterPosition.y);
 
         //neighborCount
-
-
-        List<NeighborFish> neighborFishes = ScanEnvironment();
-
+        
         if(neighborFishes.Count < neighborCount){
             float difference = neighborCount - neighborFishes.Count;
             //negative reward punishment for losing neighbors
-            AddReward(-difference * 0.1f);
+            m_FoodCollectorSettings.totalScore += difference * loseNeighborReward;
+            AddReward(difference * loseNeighborReward);
             m_FoodCollectorSettings.totalScore -= difference;
         }
         neighborCount = neighborFishes.Count;
@@ -105,18 +111,22 @@ public class FishSFAgent : Agent
         if(tank.fishes == null) return new List<NeighborFish>();
         Vector3 selfPosition = this.transform.position;
         Vector3 flockCenter = new Vector3(0,0,0);
-        List<NeighborFish> neighborFishes = new List<NeighborFish>();
+        List<NeighborFish> tempNeighborFishes = new List<NeighborFish>();
+        List<Transform> tempNeighborTransforms = new List<Transform>();
+        List<float> dists = new List<float>();
         foreach(Transform fish in tank.fishes){
             Vector3 neighborFishPosition = fish.position;
             Vector3 offset =  transform.InverseTransformPoint(neighborFishPosition);
             float sqrtDst = offset.x * offset.x + offset.y * offset.y;
             Vector2 velocity = transform.InverseTransformVector(fish.gameObject.GetComponent<FishSFAgent>().rb.velocity);
-            if(sqrtDst < visibleRadius * visibleRadius){
+            if(sqrtDst <= visibleRadius * visibleRadius){
                 NeighborFish neighbor = new NeighborFish(offset.x, offset.y, velocity.x, velocity.y);
-                neighborFishes.Add(neighbor);
+                tempNeighborFishes.Add(neighbor);
+                tempNeighborTransforms.Add(fish);
+                dists.Add(math.sqrt(sqrtDst));
             }
         }
-        return neighborFishes;
+        return tempNeighborFishes;
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
@@ -171,7 +181,7 @@ public class FishSFAgent : Agent
 
     public Vector2 RandomUnitVector()
     {
-        float randomAngle = Random.Range(0f, 360f);
+        float randomAngle = UnityEngine.Random.Range(0f, 360f);
         return new Vector2(Mathf.Cos(randomAngle), Mathf.Sin(randomAngle));
     }
 
@@ -184,15 +194,16 @@ public class FishSFAgent : Agent
         // }
     }
 
-    // private void FixedUpdate(){
-    //     // if(stomach > 0f){
-    //     //     stomach -= 0.01f;
-    //     // }
-    //     // if(stomach < 50f){
-    //     //     AddReward(-0.05f);
-    //     //     m_FoodCollectorSettings.totalScore -= 0.05f;
-    //     // }
-    // }
+    private void FixedUpdate(){
+        // if(stomach > 0f){
+        //     stomach -= 0.01f;
+        // }
+        // if(stomach < 50f){
+        //     AddReward(-0.05f);
+        //     m_FoodCollectorSettings.totalScore -= 0.05f;
+        // }
+        neighborFishes= ScanEnvironment();
+    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -209,22 +220,81 @@ public class FishSFAgent : Agent
             //     AddReward(-2f);
             // }
             Satiate();
-            m_FoodCollectorSettings.totalScore += 10;
             m_FoodCollectorSettings.foodEatenWhenHungry += 1;
-            AddReward(2f);
+            m_FoodCollectorSettings.totalScore += eatReward;
+            AddReward(eatReward);
         }
         if (collision.gameObject.CompareTag("wall"))
         {
             m_FoodCollectorSettings.totalWallHitCount += 1;
-            m_FoodCollectorSettings.totalScore -= 3;
-            AddReward(-3f);
+            m_FoodCollectorSettings.totalScore += wallCrashReward;
+            AddReward(wallCrashReward);
         }
 
         if (collision.gameObject.CompareTag("agent"))
         {
             m_FoodCollectorSettings.totalAgentHitCount += 1;
-            m_FoodCollectorSettings.totalScore -= 5;
-            AddReward(-3f);
+            m_FoodCollectorSettings.totalScore += neighborCrashReward;
+            AddReward(neighborCrashReward);
+        }
+    }
+
+    private void OnDrawGizmosSelected(){
+        if(m_FoodCollectorSettings.renderNeighborRaySelected){
+            Gizmos.color = Color.cyan;
+            foreach(NeighborFish fish in neighborFishes){
+                Vector3 target = transform.TransformPoint(fish.GetPos());
+                Gizmos.DrawLine (transform.position, target);
+            }
+        }
+        if(m_FoodCollectorSettings.renderNeighborSensorSelected){
+            //draw neighbor sensor radius
+            Gizmos.color = Color.blue;
+            float corners = 30; // How many corners the circle should have
+            float size = visibleRadius; // How wide the circle should be
+            Vector3 origin = transform.position; // Where the circle will be drawn around
+            Vector3 startRotation = transform.right * size; // Where the first point of the circle starts
+            Vector3 lastPosition = origin + startRotation;
+            float angle = 0;
+            while (angle <= 360)
+            {
+                angle += 360 / corners;
+                Vector3 nextPosition = origin + (Quaternion.Euler(0, 0, angle) * startRotation);
+                Gizmos.DrawLine(lastPosition, nextPosition);
+                // Gizmos.DrawSphere(nextPosition, 1);
+            
+                lastPosition = nextPosition;
+            }
+        }
+
+        if(m_FoodCollectorSettings.renderVisionConeSelected){
+        //draw food ray sensor
+        Gizmos.color = Color.yellow;
+        float corners = 30; // How many corners the circle should have
+        float size = visibleRadius; // How wide the circle should be
+        Vector3 origin = transform.position; // Where the circle will be drawn around
+        Vector3 startRotation = transform.TransformDirection((Quaternion.Euler(0,0,18f) * new Vector3(1,0,0)) * 100); // Where the first point of the circle starts
+        Vector3 lastPosition = origin + startRotation;
+        float angle = 0;
+        Gizmos.DrawLine(transform.position, lastPosition);
+        while (angle <= 70 * 2)
+        {
+            angle += 360 / corners;
+            Vector3 nextPosition = origin + (Quaternion.Euler(0, 0, angle) * startRotation);
+            Gizmos.DrawLine(lastPosition, nextPosition);
+            lastPosition = nextPosition;
+        }
+        Gizmos.DrawLine(transform.position, lastPosition);
+        }
+    }
+
+    private void OnDrawGizmos(){
+        if(m_FoodCollectorSettings.renderNeighborRayAll){
+            Gizmos.color = Color.cyan;
+            foreach(NeighborFish fish in neighborFishes){
+                Vector3 target = transform.TransformPoint(fish.GetPos());
+                Gizmos.DrawLine (transform.position, target);
+            }
         }
     }
 }

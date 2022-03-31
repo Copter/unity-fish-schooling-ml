@@ -10,6 +10,7 @@ public class FoodClusterSF : MonoBehaviour
     public float height;
     public const int maxFoodAmount = 300;
     public int totalFoodAmount = maxFoodAmount;
+    public int foodSpawnCap = 20;
     private float x;
     private float y;
     private List<GameObject>foodArray = new List<GameObject>();
@@ -21,7 +22,7 @@ public class FoodClusterSF : MonoBehaviour
         height = GetComponent<SpriteRenderer>().bounds.size.y;
         x = transform.position.x;
         y = transform.position.y;
-        CreateFood(10, food);
+        CreateFood(foodSpawnCap, food);
     }
 
     // Update is called once per frame
@@ -47,7 +48,7 @@ public class FoodClusterSF : MonoBehaviour
             float heightRange = transform.lossyScale.y - (leftBorder.lossyScale.y);
             transform.position = new Vector3(Random.Range(-widthRange / 2, widthRange / 2), Random.Range(-heightRange / 2, heightRange / 2),
                     200f) + myTank.transform.position;
-            CreateFood(20, food);
+            CreateFood(foodSpawnCap, food);
             totalFoodAmount = maxFoodAmount;
         }
     }

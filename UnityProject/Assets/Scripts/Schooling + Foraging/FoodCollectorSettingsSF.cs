@@ -19,6 +19,11 @@ public class FoodCollectorSettingsSF : MonoBehaviour
     public Text scoreText;
     public float defaultClusterLevel = 1f;
 
+    public bool renderVisionConeSelected = true;
+    public bool renderNeighborSensorSelected = true;
+    public bool renderNeighborRaySelected = true;
+    public bool renderNeighborRayAll = true;
+
     StatsRecorder m_Recorder;
     EnvironmentParameters m_ResetParams;
 
