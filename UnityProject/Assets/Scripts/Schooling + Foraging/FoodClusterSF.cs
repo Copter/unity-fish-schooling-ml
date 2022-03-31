@@ -8,7 +8,7 @@ public class FoodClusterSF : MonoBehaviour
     public bool respawnFood;
     public float width;
     public float height;
-    public const int maxFoodAmount = 300;
+    public const int maxFoodAmount = 100;
     public int totalFoodAmount = maxFoodAmount;
     public int foodSpawnCap = 20;
     private float x;
@@ -47,7 +47,7 @@ public class FoodClusterSF : MonoBehaviour
             float widthRange = transform.lossyScale.x - (upperBorder.lossyScale.x);
             float heightRange = transform.lossyScale.y - (leftBorder.lossyScale.y);
             transform.position = new Vector3(Random.Range(-widthRange / 2, widthRange / 2), Random.Range(-heightRange / 2, heightRange / 2),
-                    200f) + myTank.transform.position;
+                    0f) + myTank.transform.position;
             CreateFood(foodSpawnCap, food);
             totalFoodAmount = maxFoodAmount;
         }
@@ -60,7 +60,7 @@ public class FoodClusterSF : MonoBehaviour
             width = GetComponent<SpriteRenderer>().bounds.size.x;
             height = GetComponent<SpriteRenderer>().bounds.size.y;
             GameObject food = Instantiate(type, new Vector3(Random.Range(-width/2, width/2), Random.Range(-height/2, height/2),
-                    200f) + transform.position,
+                    0f) + transform.position,
                 Quaternion.Euler(new Vector3(0f, 0f, 0f)));
             food.GetComponent<FoodLogicSF>().respawn = respawnFood;
             food.GetComponent<FoodLogicSF>().myCluster = this;

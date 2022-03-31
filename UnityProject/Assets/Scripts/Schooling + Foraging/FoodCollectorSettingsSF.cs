@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.MLAgents;
+using System.Collections.Generic;
 
 public class FoodCollectorSettingsSF : MonoBehaviour
 {
@@ -19,10 +20,11 @@ public class FoodCollectorSettingsSF : MonoBehaviour
     public Text scoreText;
     public float defaultClusterLevel = 1f;
 
-    public bool renderVisionConeSelected = true;
-    public bool renderNeighborSensorSelected = true;
+    public bool renderVisionConeSelected = false;
+    public bool renderNeighborSensorSelected = false;
     public bool renderNeighborRaySelected = true;
-    public bool renderNeighborRayAll = true;
+    public bool renderNeighborRayAll = false;
+    private List<int> fishGroups = new List<int>();
 
     StatsRecorder m_Recorder;
     EnvironmentParameters m_ResetParams;
@@ -65,15 +67,34 @@ public class FoodCollectorSettingsSF : MonoBehaviour
         }
     }
 
+    public void updateFishGrouping(List<int> newGroupings){
+        fishGroups = newGroupings;
+    }
+
     public void UpdateNeighborCount(int count){
         avgNeighbors = (avgNeighbors * avgNeighborTicker + count) / (avgNeighborTicker + 1);
         avgNeighborTicker += 1;
     }
 
+    public Dictionary<int, int> GetFishGroupings(List<int> newGrouping){
+        Dictionary<int, int> groupings = new Dictionary<int, int>();
+        foreach(int num in newGrouping){
+            if(groupings.ContainsKey(num)){
+                groupings[num] = groupings[num] + 1;
+            }else{
+                groupings.Add(num, 1);
+            }
+        }
+        return groupings;
+    }
+
     public void Update()
     {
-        scoreText.text = $"TotalScore: {totalScore}\nTotalWallHit: {totalWallHitCount}\nTotalAgentHit: {totalAgentHitCount}\nAvgNeighborCount: {avgNeighbors}";
-
+        scoreText.text = $"TotalScore: {totalScore}\nTotalWallHit: {totalWallHitCount}\nTotalAgentHit: {totalAgentHitCount}\nAvgNeighborCount: {avgNeighbors}\n";
+        Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
+        foreach(KeyValuePair<int, int> entry in groupings){
+            scoreText.text += $"\ngroup of {entry.Key} : {entry.Value}";
+        }
         // Send stats via SideChannel so that they'll appear in TensorBoard.
         // These values get averaged every summary_frequency steps, so we don't
         // need to send every Update() call.

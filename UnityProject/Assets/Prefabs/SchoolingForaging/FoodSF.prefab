@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 343799951213943848}
   - component: {fileID: 343799951213943844}
   - component: {fileID: 343799951213943851}
-  - component: {fileID: 343799951213943850}
   - component: {fileID: -6869874288348298158}
+  - component: {fileID: -2041336295944356860}
   m_Layer: 7
   m_Name: FoodSF
   m_TagString: food
@@ -96,7 +96,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -112,7 +112,21 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!50 &343799951213943850
+--- !u!114 &-6869874288348298158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343799951213943855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 096314c2aa85fdb428c5383414a2073a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  respawn: 0
+  myCluster: {fileID: 0}
+--- !u!50 &-2041336295944356860
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -133,17 +147,3 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &-6869874288348298158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 343799951213943855}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 096314c2aa85fdb428c5383414a2073a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  respawn: 0
-  myCluster: {fileID: 0}

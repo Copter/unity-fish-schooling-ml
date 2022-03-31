@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -13,26 +12,22 @@ public class FishSFAgent : Agent
     public bool observe = false;
     BufferSensorComponent m_BufferSensor;
     FoodCollectorSettingsSF m_FoodCollectorSettings;
-
     private Rigidbody2D rb;
     Vector2 initialVector;
     public float steerStrength = 25f;
     public float speed;
-
     // public float stomach;
-
     private float visibleRadius = 30f;
-
     private int neighborCount = 0;
-
     private int foodEaten = 0;
-
     public List<NeighborFish> neighborFishes = new List<NeighborFish>();
-
     private float eatReward = 7.5f;
     private float loseNeighborReward = -0.35f;
     private float wallCrashReward = -3f;
     private float neighborCrashReward = -3f;
+    public float foodSensoryIntensity = 0f;
+    private bool foodVisible = false;
+    public RayPerceptionSensorComponent2D m_RayPerceptionSensorComponent2D; 
 
 
     // The factor of the rate which energy is consumed.
@@ -50,11 +45,7 @@ public class FishSFAgent : Agent
         rb = GetComponent<Rigidbody2D>();
         SetResetParameters();
         m_BufferSensor = GetComponent<BufferSensorComponent>();
-    }
-
-    public void SetResetParameters()
-    {
-
+        m_RayPerceptionSensorComponent2D = GetComponent<RayPerceptionSensorComponent2D>();
     }
 
     public override void OnEpisodeBegin()
@@ -67,20 +58,30 @@ public class FishSFAgent : Agent
         foodEaten = 0;
     }
 
+    public void SetResetParameters(){
+
+    }
+
     public override void CollectObservations(VectorSensor sensor)
     {
+        RayPerceptionSensor raySensor = m_RayPerceptionSensorComponent2D.RaySensor;
+        bool tempFoodVisible = false;
+        foreach(RayPerceptionOutput.RayOutput output in raySensor.RayPerceptionOutput.RayOutputs){
+            if(output.HitGameObject){
+                if(output.HitGameObject.CompareTag("food")){
+                    tempFoodVisible = true;
+                }
+            }
+        }
+        foodVisible = tempFoodVisible;
+        if(foodVisible) foodSensoryIntensity = 1f;
+
         var localVelocity = transform.InverseTransformDirection(rb.velocity);
         Vector3 clusterPosition = transform.InverseTransformPoint(transform.parent.GetComponent<FishTankSF>().foodCluster.transform.position);
-        // Stomach
-        // sensor.AddObservation(stomach < 50f? 1f : 0f);
-        // Agent velocity
         sensor.AddObservation(localVelocity.x);
         sensor.AddObservation(localVelocity.y);
-        // sensor.AddObservation(clusterPosition.x);
-        // sensor.AddObservation(clusterPosition.y);
 
         //neighborCount
-        
         if(neighborFishes.Count < neighborCount){
             float difference = neighborCount - neighborFishes.Count;
             //negative reward punishment for losing neighbors
@@ -103,29 +104,41 @@ public class FishSFAgent : Agent
             m_FoodCollectorSettings.UpdateNeighborCount(neighborCount);
         }
         // int health = stomach < 50? 0 : 1;
-        // GetComponent<SpriteRenderer>().color = new Color(1, health, health, 1);
+        GetComponent<SpriteRenderer>().color = new Color(1, 1 - foodSensoryIntensity, 1 - foodSensoryIntensity, 1);
     }
 
     private List<NeighborFish> ScanEnvironment(){
         FishTankSF tank = transform.parent.GetComponent<FishTankSF>();
+
         if(tank.fishes == null) return new List<NeighborFish>();
+
         Vector3 selfPosition = this.transform.position;
         Vector3 flockCenter = new Vector3(0,0,0);
         List<NeighborFish> tempNeighborFishes = new List<NeighborFish>();
         List<Transform> tempNeighborTransforms = new List<Transform>();
         List<float> dists = new List<float>();
+        
+        float maxFoodIntensity = 0f;
         foreach(Transform fish in tank.fishes){
             Vector3 neighborFishPosition = fish.position;
             Vector3 offset =  transform.InverseTransformPoint(neighborFishPosition);
             float sqrtDst = offset.x * offset.x + offset.y * offset.y;
-            Vector2 velocity = transform.InverseTransformVector(fish.gameObject.GetComponent<FishSFAgent>().rb.velocity);
+
             if(sqrtDst <= visibleRadius * visibleRadius){
-                NeighborFish neighbor = new NeighborFish(offset.x, offset.y, velocity.x, velocity.y);
+                FishSFAgent neighborAgent = fish.gameObject.GetComponent<FishSFAgent>();
+                
+                if(neighborAgent.foodSensoryIntensity >= maxFoodIntensity) maxFoodIntensity = neighborAgent.foodSensoryIntensity;
+                
+                Vector2 velocity = transform.InverseTransformVector(neighborAgent.rb.velocity);
+                
+                NeighborFish neighbor = new NeighborFish(offset.x, offset.y, velocity.x, velocity.y, fish);
                 tempNeighborFishes.Add(neighbor);
                 tempNeighborTransforms.Add(fish);
                 dists.Add(math.sqrt(sqrtDst));
             }
         }
+        if(!foodVisible) this.foodSensoryIntensity = maxFoodIntensity * 0.8f;
+        
         return tempNeighborFishes;
     }
 
@@ -205,7 +218,7 @@ public class FishSFAgent : Agent
         neighborFishes= ScanEnvironment();
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("food"))
         {
@@ -241,9 +254,10 @@ public class FishSFAgent : Agent
 
     private void OnDrawGizmosSelected(){
         if(m_FoodCollectorSettings.renderNeighborRaySelected){
-            Gizmos.color = Color.cyan;
             foreach(NeighborFish fish in neighborFishes){
                 Vector3 target = transform.TransformPoint(fish.GetPos());
+                float intensity = ((visibleRadius - Vector2.Distance(new Vector2(0,0),fish.GetPos())) / visibleRadius);
+                Gizmos.color = new Color(0,1,1,intensity);
                 Gizmos.DrawLine (transform.position, target);
             }
         }
@@ -290,7 +304,7 @@ public class FishSFAgent : Agent
 
     private void OnDrawGizmos(){
         if(m_FoodCollectorSettings.renderNeighborRayAll){
-            Gizmos.color = Color.cyan;
+            Gizmos.color = new Color(0,1,1,1);
             foreach(NeighborFish fish in neighborFishes){
                 Vector3 target = transform.TransformPoint(fish.GetPos());
                 Gizmos.DrawLine (transform.position, target);

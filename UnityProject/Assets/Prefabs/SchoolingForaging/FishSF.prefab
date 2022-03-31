@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5133008504439010612}
   - component: {fileID: 1679832830742626714}
   - component: {fileID: 4746107941226188208}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FishSF
   m_TagString: agent
   m_Icon: {fileID: 0}
@@ -158,7 +158,7 @@ MonoBehaviour:
   m_RayLength: 100
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 385
+    m_Bits: 448
   m_ObservationStacks: 1
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 0}
@@ -226,6 +226,8 @@ MonoBehaviour:
   observe: 0
   steerStrength: 70
   speed: 10
+  foodSensoryIntensity: 0
+  m_RayPerceptionSensorComponent2D: {fileID: 0}
   currentOrientation: 0
 --- !u!114 &4746107941226188208
 MonoBehaviour:

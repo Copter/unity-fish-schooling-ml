@@ -93,7 +93,7 @@ public class FishSchoolingAgent : Agent
             float sqrtDst = offset.x * offset.x + offset.y * offset.y;
             Vector2 velocity = fish.gameObject.GetComponent<FishSchoolingAgent>().rb.velocity;
             if(sqrtDst < visibleRadius * visibleRadius){
-                NeighborFish neighbor = new NeighborFish(offset.x, offset.y, velocity.x, velocity.y);
+                NeighborFish neighbor = new NeighborFish(offset.x, offset.y, velocity.x, velocity.y, fish);
                 neighborFishes.Add(neighbor);
             }
         }

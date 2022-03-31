@@ -290,7 +290,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 219629848}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -78}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -503,6 +503,10 @@ MonoBehaviour:
   timeScale: 10
   scoreText: {fileID: 1860776159}
   defaultClusterLevel: 0.4
+  renderVisionConeSelected: 0
+  renderNeighborSensorSelected: 0
+  renderNeighborRaySelected: 1
+  renderNeighborRayAll: 0
 --- !u!4 &312968963
 Transform:
   m_ObjectHideFlags: 0
@@ -3432,8 +3436,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -456, y: 243}
-  m_SizeDelta: {x: 214.1071, y: 90.9364}
+  m_AnchoredPosition: {x: -525, y: 29.6497}
+  m_SizeDelta: {x: 214.1071, y: 523.0385}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1860776159
 MonoBehaviour:
