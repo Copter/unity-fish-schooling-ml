@@ -502,7 +502,7 @@ MonoBehaviour:
   totalWallHitCount: 0
   timeScale: 10
   scoreText: {fileID: 1860776159}
-  defaultClusterLevel: 0.4
+  defaultClusterLevel: 0.5
   renderVisionConeSelected: 0
   renderNeighborSensorSelected: 0
   renderNeighborRaySelected: 0
@@ -2787,6 +2787,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5539690109275899654, guid: b6b448f7c1cb56044bf9bcd3b92584d2,
         type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 18.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5539690109275899654, guid: b6b448f7c1cb56044bf9bcd3b92584d2,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 29.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5539690109275899654, guid: b6b448f7c1cb56044bf9bcd3b92584d2,
+        type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
@@ -2858,7 +2868,7 @@ PrefabInstance:
     - target: {fileID: 8699646052197949930, guid: b6b448f7c1cb56044bf9bcd3b92584d2,
         type: 3}
       propertyPath: numCluster
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8699646052197949930, guid: b6b448f7c1cb56044bf9bcd3b92584d2,
         type: 3}
@@ -3725,6 +3735,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 81026601}
     m_Modifications:
+    - target: {fileID: 5133008504439010603, guid: 25ec7ffd28d86de4f891cd84b53d54ce,
+        type: 3}
+      propertyPath: m_RayLength
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5133008504439010603, guid: 25ec7ffd28d86de4f891cd84b53d54ce,
+        type: 3}
+      propertyPath: m_RayLayerMask.m_Bits
+      value: 384
+      objectReference: {fileID: 0}
     - target: {fileID: 5133008504439010614, guid: 25ec7ffd28d86de4f891cd84b53d54ce,
         type: 3}
       propertyPath: m_RootOrder

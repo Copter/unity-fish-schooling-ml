@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.MLAgents;
 using System.Collections.Generic;
+using System.Linq;
 
 public class FoodCollectorSettingsSF : MonoBehaviour
 {
@@ -90,12 +91,9 @@ public class FoodCollectorSettingsSF : MonoBehaviour
 
     public void Update()
     {
-        float averageGroupSize = 0f;
-        foreach(int size in fishGroups){
-            averageGroupSize += size;
-        }
-        averageGroupSize = averageGroupSize / fishGroups.Count;
-        scoreText.text = $"TotalScore: {totalScore}\nTotalWallHit: {totalWallHitCount}\nTotalAgentHit: {totalAgentHitCount}\nAvgNeighborCount: {avgNeighbors}\nAvgGroupSize: {averageGroupSize}\n";
+        float averageGroupSize = (float) fishGroups.Average();
+        int maximumGroupSize = fishGroups.Max();
+        scoreText.text = $"TotalScore: {totalScore}\nTotalWallHit: {totalWallHitCount}\nTotalAgentHit: {totalAgentHitCount}\nAvgNeighborCount: {avgNeighbors}\nAvgGroupSize: {averageGroupSize}\nMaxGroupSize: {maximumGroupSize}";
         Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
         foreach(KeyValuePair<int, int> entry in groupings){
             scoreText.text += $"\ngroup of {entry.Key} : {entry.Value}";
@@ -107,6 +105,7 @@ public class FoodCollectorSettingsSF : MonoBehaviour
         if ((Time.frameCount % 100) == 0)
         {
             m_Recorder.Add("Agent/avgGroupSize", averageGroupSize);
+            m_Recorder.Add("Agent/maximumGroupSize", maximumGroupSize);
             m_Recorder.Add("Agent/TotalScore", totalScore);
             m_Recorder.Add("Agent/TotalWallHit", totalWallHitCount);
             m_Recorder.Add("Agent/TotalAgentHit", totalAgentHitCount);

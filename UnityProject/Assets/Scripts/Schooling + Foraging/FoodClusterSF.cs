@@ -11,8 +11,6 @@ public class FoodClusterSF : MonoBehaviour
     public const int maxFoodAmount = 300;
     public int totalFoodAmount = maxFoodAmount;
     public int foodSpawnCap = 20;
-    private float x;
-    private float y;
     private List<GameObject>foodArray = new List<GameObject>();
     public FishTankSF myTank;
     // Start is called before the first frame update
@@ -20,8 +18,6 @@ public class FoodClusterSF : MonoBehaviour
     {
         width = GetComponent<SpriteRenderer>().bounds.size.x;
         height = GetComponent<SpriteRenderer>().bounds.size.y;
-        x = transform.position.x;
-        y = transform.position.y;
         CreateFood(foodSpawnCap, food);
     }
 

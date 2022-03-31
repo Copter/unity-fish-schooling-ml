@@ -15,18 +15,23 @@ public class FishSFAgent : Agent
     private Rigidbody2D rb;
     Vector2 initialVector;
     public float steerStrength = 25f;
-    public float speed;
+    private float maxSpeed = 20f;
+    private float minSpeed = 10f;
+    private float accelerationConstant = 50f;
     // public float stomach;
-    private float visibleRadius = 30f;
+    private float visibleRadius = 50f;
     private int neighborCount = 0;
     private int foodEaten = 0;
     public List<NeighborFish> neighborFishes = new List<NeighborFish>();
-    private float eatReward = 5f;
+    private float eatReward = 2.5f;
     private float loseNeighborReward = -0.35f;
     private float wallCrashReward = -3f;
     private float neighborCrashReward = -3f;
     public float foodSensoryIntensity = 0f;
     private bool foodVisible = false;
+    public float score = 0;
+    public float currentSpeed = 0f;
+    public float accelerationInput = 0f;
     public RayPerceptionSensorComponent2D m_RayPerceptionSensorComponent2D; 
 
 
@@ -53,8 +58,7 @@ public class FishSFAgent : Agent
         var tank = GetComponentInParent<FishTankSF>();
         tank.ResetAgent(gameObject);
         initialVector = RandomUnitVector();
-        rb.velocity = speed * initialVector;
-        // stomach = 0;
+        rb.velocity = (maxSpeed + minSpeed) * 0.5f * initialVector;
         foodEaten = 0;
     }
 
@@ -85,9 +89,10 @@ public class FishSFAgent : Agent
         if(neighborFishes.Count < neighborCount){
             float difference = neighborCount - neighborFishes.Count;
             //negative reward punishment for losing neighbors
-            m_FoodCollectorSettings.totalScore += difference * loseNeighborReward;
-            AddReward(difference * loseNeighborReward);
-            m_FoodCollectorSettings.totalScore -= difference;
+            float loseNeighborTotalReward = difference * loseNeighborReward;
+            m_FoodCollectorSettings.totalScore += loseNeighborTotalReward;
+            this.score += loseNeighborTotalReward;
+            AddReward(loseNeighborTotalReward);
         }
         neighborCount = neighborFishes.Count;
         
@@ -152,16 +157,19 @@ public class FishSFAgent : Agent
     {
         var continuousActions = actionBuffers.ContinuousActions;
         this.MoveSteer(Mathf.Clamp(continuousActions[0], -1f, 1f));
-        this.MoveForward(1);
+        this.MoveForward(Mathf.Clamp(continuousActions[1], -1f, 1f));
+        this.accelerationInput = Mathf.Clamp(continuousActions[1], -1f, 1f);
         transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
     }
 
     public void MoveForward(float input)
     {
-        rb.AddForce(transform.up * speed * input);
-        if (rb.velocity.sqrMagnitude > speed * speed) // slow it down
+        rb.AddForce(transform.up * accelerationConstant * input);
+        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed) // slow it down
         {
-            rb.velocity *= 0.95f;
+            rb.velocity *= 0.8f;
+        }else if (rb.velocity.sqrMagnitude < minSpeed * minSpeed){
+            rb.velocity *= 1.2f;
         }
     }
 
@@ -200,40 +208,21 @@ public class FishSFAgent : Agent
     }
 
     public void Satiate(){
-        // stomach = 100f;
         foodEaten++;
-        // if(foodEaten == 15)
-        // {
-        //     EndEpisode();
-        // }
     }
 
     private void FixedUpdate(){
-        // if(stomach > 0f){
-        //     stomach -= 0.01f;
-        // }
-        // if(stomach < 50f){
-        //     AddReward(-0.05f);
-        //     m_FoodCollectorSettings.totalScore -= 0.05f;
-        // }
         neighborFishes= ScanEnvironment();
+        this.currentSpeed = rb.velocity.magnitude;
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("food"))
         {
             collision.gameObject.GetComponent<FoodLogicSF>().OnEaten();
-            // if(stomach < 50f){
-            //     m_FoodCollectorSettings.totalScore += 3;
-            //     m_FoodCollectorSettings.foodEatenWhenHungry += 1;
-            //     AddReward(3f);
-            // }else{
-            //     m_FoodCollectorSettings.totalScore -= 2;
-            //     m_FoodCollectorSettings.foodEatenWhenNotHungry += 1;
-            //     AddReward(-2f);
-            // }
             Satiate();
             m_FoodCollectorSettings.foodEatenWhenHungry += 1;
+            this.score += eatReward;
             m_FoodCollectorSettings.totalScore += eatReward;
             AddReward(eatReward);
         }
@@ -244,6 +233,7 @@ public class FishSFAgent : Agent
         {
             m_FoodCollectorSettings.totalWallHitCount += 1;
             m_FoodCollectorSettings.totalScore += wallCrashReward;
+            this.score += wallCrashReward;
             AddReward(wallCrashReward);
         }
 
@@ -251,6 +241,7 @@ public class FishSFAgent : Agent
         {
             m_FoodCollectorSettings.totalAgentHitCount += 1;
             m_FoodCollectorSettings.totalScore += neighborCrashReward;
+            this.score += neighborCrashReward;
             AddReward(neighborCrashReward);
         }
     }

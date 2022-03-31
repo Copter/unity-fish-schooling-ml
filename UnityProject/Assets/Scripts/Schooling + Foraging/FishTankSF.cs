@@ -85,8 +85,7 @@ public class FishTankSF : MonoBehaviour
         for (int i = 0; i < num; i++)
         {
 
-            GameObject cluster = Instantiate(clusterObject, new Vector3(Random.Range(-widthRange/2, widthRange / 2), Random.Range(-heightRange / 2, heightRange/2),
-                    0f) + transform.position,
+            GameObject cluster = Instantiate(clusterObject, new Vector3(0f, 0f, 0f) + transform.position,
                 Quaternion.Euler(new Vector3(0f, 0f, 0f)));
             cluster.GetComponent<FoodClusterSF>().respawnFood = true;
             cluster.GetComponent<FoodClusterSF>().myTank = this;
