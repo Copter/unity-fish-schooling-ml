@@ -504,7 +504,7 @@ MonoBehaviour:
   scoreText: {fileID: 1860776159}
   defaultClusterLevel: 0.4
   renderVisionConeSelected: 0
-  renderNeighborSensorSelected: 0
+  renderNeighborSensorSelected: 1
   renderNeighborRaySelected: 1
   renderNeighborRayAll: 0
 --- !u!4 &312968963
@@ -1941,6 +1941,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 81026601}
     m_Modifications:
+    - target: {fileID: 5133008504439010612, guid: 25ec7ffd28d86de4f891cd84b53d54ce,
+        type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5133008504439010614, guid: 25ec7ffd28d86de4f891cd84b53d54ce,
         type: 3}
       propertyPath: m_RootOrder

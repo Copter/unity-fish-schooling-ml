@@ -158,7 +158,7 @@ MonoBehaviour:
   m_RayLength: 100
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 448
+    m_Bits: 384
   m_ObservationStacks: 1
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 0}
@@ -199,7 +199,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: c3e5da08cc5e41142b849ef871a8216f, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 07884edb1f9796e4ca6dace4159332d3, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF

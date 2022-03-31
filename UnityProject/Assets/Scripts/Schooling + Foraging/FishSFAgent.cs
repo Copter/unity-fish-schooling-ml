@@ -104,7 +104,7 @@ public class FishSFAgent : Agent
             m_FoodCollectorSettings.UpdateNeighborCount(neighborCount);
         }
         // int health = stomach < 50? 0 : 1;
-        GetComponent<SpriteRenderer>().color = new Color(1, 1 - foodSensoryIntensity, 1 - foodSensoryIntensity, 1);
+        GetComponent<SpriteRenderer>().color = new Color(1, 1 - foodSensoryIntensity, 0, 1);
     }
 
     private List<NeighborFish> ScanEnvironment(){
