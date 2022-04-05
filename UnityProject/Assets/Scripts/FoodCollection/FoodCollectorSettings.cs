@@ -52,10 +52,10 @@ public class FoodCollectorSettings : MonoBehaviour
         // These values get averaged every summary_frequency steps, so we don't
         // need to send every Update() call.
         if ((Time.frameCount % 100) == 0)
-        {
+        {/*
             m_Recorder.Add("Agent/TotalScore", totalScore);
             m_Recorder.Add("Agent/TotalWallHit", totalWallHitCount);
             m_Recorder.Add("Agent/TotalAgentHit", totalAgentHitCount);
-        }
+        */}
     }
 }

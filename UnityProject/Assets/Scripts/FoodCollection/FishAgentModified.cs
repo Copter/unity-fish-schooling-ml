@@ -252,4 +252,10 @@ public class FishAgentModified : Agent
             */
         }
     }
+
+    private void OnMouseDown()
+    {
+        GameObject.Find("Main Camera").GetComponent<cameraControl>().followWho = this.gameObject;
+        //transform.parent = otherGameObject.transform;
+    }
 }

@@ -156,17 +156,17 @@ public class sharkScript : MonoBehaviour
                     var relativePoint = transform.InverseTransformPoint(TargetObjTransform.position);
                     if (relativePoint.x < -1f) 
                     {
-                        print (priorityHit.collider.name + " is slightly left");
+                        //print (priorityHit.collider.name + " is slightly left");
                         turnLeft();
                     } 
                     else if (relativePoint.x > 1f) 
                     {
-                        print (priorityHit.collider.name + " is slightly right");
+                        //print (priorityHit.collider.name + " is slightly right");
                         turnRight();
                     } 
                     else 
                     {
-                        print (priorityHit.collider.name + " is directly ahead");
+                        //print (priorityHit.collider.name + " is directly ahead");
                         rb.velocity = swimSpeed * rb.velocity.normalized;
                     }
 
@@ -174,22 +174,22 @@ public class sharkScript : MonoBehaviour
                 }
                 else if(hitsL.Length > 0 && leftRayHit.collider.gameObject.tag == "agent") 
                 {
-                    print (leftRayHit.collider.name + " is far left");
+                    //print (leftRayHit.collider.name + " is far left");
                     turnLeft();
                 }
                 else if(hitsR.Length > 0 && rightRayHit.collider.gameObject.tag == "agent") 
                 {
-                    print (rightRayHit.collider.name + " is far right");
+                    //print (rightRayHit.collider.name + " is far right");
                     turnRight();
                 }
                 else if(hitsL2.Length > 0 && leftRay2Hit.collider.gameObject.tag == "agent") 
                 {
-                    print (leftRay2Hit.collider.name + " is to the left");
+                    //print (leftRay2Hit.collider.name + " is to the left");
                     turnLeft();
                 }
                 else if(hitsR2.Length > 0 && rightRay2Hit.collider.gameObject.tag == "agent") 
                 {
-                    print (rightRay2Hit.collider.name + " is to the right");
+                    //print (rightRay2Hit.collider.name + " is to the right");
                     turnRight();
                 }
                 /*
@@ -207,7 +207,7 @@ public class sharkScript : MonoBehaviour
                 else if(priorityHit.collider.gameObject.tag == "wall")
                 {
                     //if(priorityHit.distance <= 10f) {
-                    print (priorityHit.collider.name + " ahead, avoiding it.");
+                    //print (priorityHit.collider.name + " ahead, avoiding it.");
 
                     var relativePoint = transform.InverseTransformPoint(tankCenterPos); //Vector3.zero
                     if (relativePoint.x < -1f) 
