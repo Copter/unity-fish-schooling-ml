@@ -273,4 +273,10 @@ public class sharkScript : MonoBehaviour
         return(resultHit);
     }
     */
+
+    private void OnMouseDown()
+    {
+        GameObject.Find("Main Camera").GetComponent<cameraControl>().followWho = this.gameObject;
+        //transform.parent = otherGameObject.transform;
+    }
 }

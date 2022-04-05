@@ -33,7 +33,7 @@ public class cameraControl : MonoBehaviour
                 drag = true;
             }
 
-            print("dragOrigin: " + dragOrigin + "; diff: " + diff);
+            //print("dragOrigin: " + dragOrigin + "; diff: " + diff);
         }
         else
         {
