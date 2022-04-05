@@ -52,5 +52,26 @@ public class cameraControl : MonoBehaviour
 
         if (Input.GetMouseButton(1))    followWho = null;
 
+        // Game Speed Controls
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            Time.timeScale += -0.2f;
+            Time.timeScale = Mathf.Round(10 * Time.timeScale) / 10;
+            print("Simulation Speed = " + Time.timeScale);
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            Time.timeScale += 0.2f;
+            Time.timeScale = Mathf.Round(10 * Time.timeScale) / 10;
+            print("Simulation Speed = " + Time.timeScale);
+        }
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Time.timeScale = 1f;
+            print("Simulation Speed = " + Time.timeScale);
+        }
+
     }
 }
