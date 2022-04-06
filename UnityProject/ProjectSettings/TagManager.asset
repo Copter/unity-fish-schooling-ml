@@ -9,6 +9,11 @@ TagManager:
   - wall
   - agent
   - food_cluster
+  - predator
+  - agent-trigger-check
+  - predator-trigger-check
+  - block
+  - fish-grid
   layers:
   - Default
   - TransparentFX
@@ -16,15 +21,15 @@ TagManager:
   - 
   - Water
   - UI
-  - agent
+  - Agent
   - Food
   - Wall
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Predator
+  - Sprite
+  - AgentSensor
+  - PredatorSensor
+  - GridBlock
+  - FishGridCollision
   - 
   - 
   - 

@@ -1,40 +1,59 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.MLAgents;
+using System;
 
-public class FishTankSF : MonoBehaviour
-{
-    public GameObject cluster;
+public class FishTankSF : MonoBehaviour {
+    public GameObject predatorPrefab;
+    public GameObject clusterPrefab;
+    public GameObject fishPrefab;
+    public GameObject blockPrefab;
+    public int numPredators;
+    public int numFish;
     public int numCluster;
     public float fishSpawnRange;
-    private EnvironmentParameters m_ResetParams;
-    // public List<GameObject> foodClusters = new List<GameObject>();
-    public GameObject foodCluster;
-    public List<Transform> fishes = new List<Transform>();
+    public List<FoodClusterSF> foodClusters = new List<FoodClusterSF>();
+    public List<FishSFAgent> fishes = new List<FishSFAgent>();
 
-    public List<List<Transform>> fishGroups = new List<List<Transform>>();
+    public List<Predator> predators = new List<Predator>();
 
-    FoodCollectorSettingsSF m_FoodCollectorSettings;
+    public Block[,] gridBlocks;
 
-    private float nextUpdate=0.5f;
+    public List<List<FishSFAgent>> fishGroups = new List<List<FishSFAgent>>();
+    float tankWidth = 0f;
+    float tankHeight = 0f;
 
-    private void Start()
-    {
-        m_FoodCollectorSettings = FindObjectOfType<FoodCollectorSettingsSF>();
-        m_ResetParams = Academy.Instance.EnvironmentParameters;
-        foreach(Transform child in transform){
-            if(child.tag == "agent"){
-                fishes.Add(child);
-            }
+    FishTrainer m_FishTrainer;
+
+    private float nextUpdate = 0.5f;
+
+    private void Start() {
+        m_FishTrainer = FindObjectOfType<FishTrainer>();
+        for (int i = 0; i < numFish; i++) {
+            GameObject fishGameObject = Instantiate(fishPrefab, new Vector3(0f, 0f, 0f) + transform.position,
+                  Quaternion.Euler(new Vector3(0f, 0f, 0f)));
+            fishGameObject.transform.parent = this.transform;
+            FishSFAgent fishComponent = fishGameObject.GetComponent<FishSFAgent>();
+            fishComponent.tank = this;
+            fishes.Add(fishComponent);
+        }
+        for (int i = 0; i < numPredators; i++) {
+            GameObject predator = Instantiate(predatorPrefab, new Vector3(0f, 0f, 0f) + transform.position,
+                Quaternion.Euler(new Vector3(0f, 0f, 0f)));
+            predator.transform.parent = this.transform;
+            Predator predatorComponent = predator.GetComponent<Predator>();
+            predatorComponent.tank = this;
+            predators.Add(predatorComponent);
+            ResetAgent(predator.transform);
         }
     }
 
-    private List<List<Transform>> GetFishGroups(){
-        List<List<Transform>> groups = new List<List<Transform>>();
-        List<Transform> checkedFishes = new List<Transform>(); 
-        foreach(Transform fish in fishes){
-            if(!checkedFishes.Contains(fish)){
-                List<Transform> currentNetwork = new List<Transform>();
+    private List<List<FishSFAgent>> GetFishGroups() {
+        List<List<FishSFAgent>> groups = new List<List<FishSFAgent>>();
+        List<FishSFAgent> checkedFishes = new List<FishSFAgent>();
+        foreach (FishSFAgent fish in fishes) {
+            if (!checkedFishes.Contains(fish)) {
+                List<FishSFAgent> currentNetwork = new List<FishSFAgent>();
                 currentNetwork.Add(fish);
                 findNetwork(fish, checkedFishes, currentNetwork);
                 groups.Add(currentNetwork);
@@ -43,83 +62,138 @@ public class FishTankSF : MonoBehaviour
         return groups;
     }
 
-    private void findNetwork(Transform currentFish, List<Transform> checkedFishes, List<Transform> currentNetwork){
+    private void findNetwork(FishSFAgent currentFish, List<FishSFAgent> checkedFishes, List<FishSFAgent> currentNetwork) {
         checkedFishes.Add(currentFish);
-        foreach(NeighborFish neighborFish in currentFish.GetComponent<FishSFAgent>().neighborFishes){
-            Transform neighborTransform = neighborFish.FishTransform;
-            if(!checkedFishes.Contains(neighborTransform)){
-                currentNetwork.Add(neighborTransform);
-                findNetwork(neighborTransform, checkedFishes, currentNetwork);
+        foreach (NeighborFish neighborFish in currentFish.neighborFishes) {
+            if (!checkedFishes.Contains(neighborFish.FishComponent)) {
+                currentNetwork.Add(neighborFish.FishComponent);
+                findNetwork(neighborFish.FishComponent, checkedFishes, currentNetwork);
             }
         }
     }
 
-    private void Update(){
-        if(Time.time>=nextUpdate){
-             Debug.Log(Time.time+">="+nextUpdate);
-             // Change the next update (current second+1)
-             nextUpdate=Mathf.FloorToInt(Time.time)+1;
-             // Call your fonction
-             UpdateOnSchedule();
-         }
+    private void Update() {
+        if (Time.time >= nextUpdate) {
+            nextUpdate = Mathf.FloorToInt(Time.time) + 1;
+            UpdateOnSchedule();
+        }
+
+        foreach (FishSFAgent fish in fishes) {
+            Vector3 shiftVector = new Vector3(-tankWidth * 0.5f, tankHeight * 0.5f, 0);
+            Vector2 origin = transform.position + shiftVector;
+            Vector2 fishPosition = fish.transform.position;
+            Vector2 offset = fishPosition - origin;
+            int gridPosX = (int)Math.Floor(offset.x / 40f);
+            int gridPosY = (int)Math.Floor(-offset.y / 40f);
+
+            Block currentBlock = gridBlocks[gridPosX, gridPosY];
+            if (fish.block) {
+                if (fish.block != currentBlock) {
+                    fish.block.fishInBlock.Remove(fish);
+                    fish.block = currentBlock;
+                    currentBlock.fishInBlock.Add(fish);
+                }
+            } else {
+                fish.block = currentBlock;
+                currentBlock.fishInBlock.Add(fish);
+            }
+        }
+
+        foreach (Predator predator in predators) {
+            Vector3 shiftVector = new Vector3(-tankWidth * 0.5f, tankHeight * 0.5f, 0);
+            Vector2 origin = transform.position + shiftVector;
+            Vector2 predatorPosition = predator.transform.position;
+            Vector2 offset = predatorPosition - origin;
+            int gridPosX = (int)Math.Floor(offset.x / 40f);
+            int gridPosY = (int)Math.Floor(-offset.y / 40f);
+            Block currentBlock = gridBlocks[gridPosX, gridPosY];
+            if (predator.block) {
+                if (predator.block != currentBlock) {
+                    predator.block.predatorsInBlock.Remove(predator);
+                    predator.block = currentBlock;
+                    currentBlock.predatorsInBlock.Add(predator);
+                }
+            } else {
+                predator.block = currentBlock;
+                currentBlock.predatorsInBlock.Add(predator);
+            }
+        }
+
+        for (int i = 0; i < gridBlocks.GetLength(0); i++) {
+            for (int j = 0; j < gridBlocks.GetLength(1); j++) {
+                Block block = gridBlocks[i, j].GetComponent<Block>();
+                if (block.fishInBlock.Count > 0) {
+                    block.spriteRenderer.color = new Color32(255, 255, 0, 25);
+                } else {
+                    block.spriteRenderer.color = new Color32(11, 83, 253, 25);
+                }
+            }
+        }
     }
 
-    private void UpdateOnSchedule(){
+    private void UpdateOnSchedule() {
         fishGroups = GetFishGroups();
         List<int> groupings = new List<int>();
-        foreach(List<Transform> group in fishGroups){
+        foreach (List<FishSFAgent> group in fishGroups) {
             groupings.Add(group.Count);
         }
-        m_FoodCollectorSettings.updateFishGrouping(groupings);
+        m_FishTrainer.updateFishGrouping(groupings);
     }
-    
-    void CreateFoodCluster(int num, GameObject clusterObject, float cluster_level)
-    {
+
+    void CreateFoodCluster(int num, GameObject clusterObject, float cluster_level) {
         Transform wall = transform.Find("Wall");
         Transform upperBorder = wall.Find("borderU");
         Transform leftBorder = wall.Find("borderL");
         float widthRange = clusterObject.transform.lossyScale.x - (upperBorder.lossyScale.x);
         float heightRange = clusterObject.transform.lossyScale.y - (leftBorder.lossyScale.y);
-        Debug.Log(clusterObject.transform.lossyScale.x);
-        Debug.Log(upperBorder.lossyScale.x);
-        for (int i = 0; i < num; i++)
-        {
-
+        for (int i = 0; i < num; i++) {
             GameObject cluster = Instantiate(clusterObject, new Vector3(0f, 0f, 0f) + transform.position,
                 Quaternion.Euler(new Vector3(0f, 0f, 0f)));
-            cluster.GetComponent<FoodClusterSF>().respawnFood = true;
-            cluster.GetComponent<FoodClusterSF>().myTank = this;
+            FoodClusterSF clusterComponentcluster = cluster.GetComponent<FoodClusterSF>();
+            clusterComponentcluster.respawnFood = true;
+            clusterComponentcluster.myTank = this;
             float x_scale = cluster.transform.localScale.x * cluster_level;
             float y_scale = cluster.transform.localScale.y * cluster_level;
             cluster.transform.localScale = new Vector3(x_scale, y_scale, 1);
-            // foodClusters.Add(cluster);
-            foodCluster = cluster;
+            foodClusters.Add(clusterComponentcluster);
         }
     }
 
-    public void ResetTank(GameObject[] agents, float cluster_level)
-    {
-        foreach (GameObject agent in agents)
-        {
-            if (agent.transform.parent == gameObject.transform)
-            {
-                ResetAgent(agent);
+    public void ResetTank(GameObject[] agents, float cluster_level) {
+        foreach (GameObject agent in agents) {
+            if (agent.transform.parent == gameObject.transform) {
+                ResetAgent(agent.transform);
             }
         }
         Transform wall = transform.Find("Wall");
-        wall.localScale = new Vector3(1/cluster_level, 1/cluster_level, 1);
-        CreateFoodCluster(numCluster, cluster, cluster_level);
+        wall.localScale = new Vector3(1 / cluster_level, 1 / cluster_level, 1);
+        tankWidth = wall.Find("borderU").transform.localScale.x * wall.localScale.x;
+        tankHeight = wall.Find("borderR").transform.localScale.y * wall.localScale.x;
+        int numHorizontalGrid = (int)(tankWidth / blockPrefab.transform.localScale.x);
+        int numVerticalGrid = (int)(tankHeight / blockPrefab.transform.localScale.y);
+        CreateFoodCluster(numCluster, clusterPrefab, cluster_level);
+        CreateBlocks(numHorizontalGrid, numVerticalGrid, tankWidth, tankHeight);
     }
 
-    public void ResetAgent(GameObject agent)
-    {
-        agent.transform.position = new Vector3(Random.Range(-fishSpawnRange, fishSpawnRange), Random.Range(-fishSpawnRange, fishSpawnRange),
+    void CreateBlocks(int numHorizontalGrid, int numVerticalGrid, float tankWidth, float tankHeight) {
+        gridBlocks = new Block[numHorizontalGrid + 1, numVerticalGrid + 1];
+        for (int i = 0; i < numHorizontalGrid + 1; i++) {
+            for (int j = 0; j < numVerticalGrid + 1; j++) {
+                GameObject block = Instantiate(blockPrefab, new Vector3(-tankWidth * 0.5f + 40 * i, tankHeight * 0.5f - 40 * j, 0f) + transform.position,
+                Quaternion.Euler(new Vector3(0f, 0f, 0f)));
+                block.transform.parent = this.transform;
+                Block blockComponent = block.GetComponent<Block>();
+                gridBlocks[i, j] = blockComponent;
+                blockComponent.blockXPos = i;
+                blockComponent.blockYPos = j;
+            }
+        }
+    }
+
+    public void ResetAgent(Transform agent) {
+        agent.position = new Vector3(UnityEngine.Random.Range(-fishSpawnRange, fishSpawnRange), UnityEngine.Random.Range(-fishSpawnRange, fishSpawnRange),
                     0f)
                     + transform.position;
-        agent.transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
-    }
-
-    public void ResetArea()
-    {
+        agent.rotation = Quaternion.Euler(new Vector3(0f, UnityEngine.Random.Range(0, 360)));
     }
 }

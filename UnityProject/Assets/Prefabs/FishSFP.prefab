@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5133008504439010620
+--- !u!1 &1614552258910242771
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,44 +8,83 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5133008504439010614}
-  - component: {fileID: 5133008504439010615}
-  - component: {fileID: 5133008504439010608}
-  - component: {fileID: 5133008504439010609}
-  - component: {fileID: 5133008504439010603}
-  - component: {fileID: 6416805356586632257}
-  - component: {fileID: 5133008504439010612}
-  - component: {fileID: 1679832830742626714}
-  - component: {fileID: 4746107941226188208}
+  - component: {fileID: 1614552258910242777}
+  - component: {fileID: 5051879619258954613}
+  - component: {fileID: 1614552258910242776}
+  - component: {fileID: 7395969864664443972}
+  - component: {fileID: 1614552258910242782}
+  - component: {fileID: 1614552258910242756}
+  - component: {fileID: 601517287633630894}
+  - component: {fileID: 1614552258910242779}
+  - component: {fileID: 1191631695106916191}
   m_Layer: 6
-  m_Name: FishSF
+  m_Name: FishSFP
   m_TagString: agent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5133008504439010614
+--- !u!4 &1614552258910242777
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.5, y: 9.1, z: 50}
+  m_LocalPosition: {x: 29, y: 14, z: 50}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 218044775611249160}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &5133008504439010615
+--- !u!114 &5051879619258954613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1614552258910242771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 278d5bfd109057842bb41f4542cabcf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
+  observe: 0
+  steerStrength: 70
+  maxSpeed: 20
+  minSpeed: 10
+  accelerationConstant: 50
+  neighborSensorRadius: 40
+  predatorSensorRadius: 65
+  score: 0
+  ApparentSpeed: 0
+  accelerationInput: 0
+  neighborCount: 0
+  foodEaten: 0
+  foodSensoryIntensity: 0
+  predatorSensoryIntensity: 0
+  foodVisible: 0
+  predatorVisible: 0
+  onEatenReward: -100
+  eatReward: 2.5
+  loseNeighborReward: -0.3
+  wallCrashReward: -3
+  neighborCrashReward: -3
+  spriteRenderer: {fileID: 0}
+  block: {fileID: 0}
+  tank: {fileID: 0}
+--- !u!212 &1614552258910242776
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -90,13 +129,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &5133008504439010608
-BoxCollider2D:
+--- !u!58 &7395969864664443972
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -104,26 +143,16 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.505, y: 1.3075}
-    newSize: {x: 1.3075, y: 0.505}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.505, y: 1.3075}
-  m_EdgeRadius: 0
---- !u!50 &5133008504439010609
+  m_Radius: 0.67
+--- !u!50 &1614552258910242782
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
@@ -137,19 +166,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &5133008504439010603
+--- !u!114 &1614552258910242756
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f67c7e722ba14acd9153bb4488bff6e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SensorName: RayPerceptionSensor
+  m_SensorName: FoodSensor
   m_DetectableTags:
   - food
   - wall
@@ -161,37 +190,37 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 384
   m_ObservationStacks: 1
-  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
+  rayHitColor: {r: 0.04513645, g: 1, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 0}
---- !u!114 &6416805356586632257
+--- !u!114 &601517287633630894
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd8012d5925524537b27131fef517017, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_SensorName: BufferSensor
-  m_ObservableSize: 5
+  m_ObservableSize: 6
   m_MaxNumObservables: 24
---- !u!114 &5133008504439010612
+--- !u!114 &1614552258910242779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 2
+    VectorObservationSize: 6
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
@@ -200,7 +229,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 883e68f83e1e43e42b697f485a17d375, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 01c9ab1c1c8eb394288e597861638fb3, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF
@@ -208,50 +237,13 @@ MonoBehaviour:
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
---- !u!114 &1679832830742626714
+--- !u!114 &1191631695106916191
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 278d5bfd109057842bb41f4542cabcf9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
-  observe: 0
-  steerStrength: 70
-  maxSpeed: 20
-  minSpeed: 10
-  accelerationConstant: 50
-  neighborSensorRadius: 40
-  predatorSensorRadius: 65
-  score: 0
-  ApparentSpeed: 0
-  accelerationInput: 0
-  neighborCount: 0
-  foodEaten: 0
-  foodSensoryIntensity: 0
-  predatorSensoryIntensity: 0
-  foodVisible: 0
-  predatorVisible: 0
-  onEatenReward: -300
-  eatReward: 2.5
-  loseNeighborReward: -0.25
-  wallCrashReward: -3
-  neighborCrashReward: -3
---- !u!114 &4746107941226188208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5133008504439010620}
+  m_GameObject: {fileID: 1614552258910242771}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
@@ -259,72 +251,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DecisionPeriod: 5
   TakeActionsBetweenDecisions: 1
---- !u!1 &9169109624316501644
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 218044775611249160}
-  - component: {fileID: 8434405620230755178}
-  - component: {fileID: 7316383378625918066}
-  m_Layer: 14
-  m_Name: blockTrigger
-  m_TagString: fish
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &218044775611249160
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9169109624316501644}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 5133008504439010614}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &8434405620230755178
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9169109624316501644}
-  m_BodyType: 2
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
---- !u!58 &7316383378625918066
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9169109624316501644}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.66
