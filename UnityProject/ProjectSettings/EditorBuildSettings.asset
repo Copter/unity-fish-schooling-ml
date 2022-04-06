@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: 
     guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/foodCollection.unity
+    path: Assets/Scenes/foraging.unity
     guid: 97802360cd6b60949b753b064bb8180f
   m_configObjects: {}
