@@ -214,4 +214,9 @@ public class Predator : MonoBehaviour {
             lastPosition = nextPosition;
         }
     }
+
+    private void OnMouseDown()
+    {
+        GameObject.Find("Main Camera").GetComponent<cameraControl>().followWho = this.gameObject;
+    }
 }

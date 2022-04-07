@@ -403,4 +403,9 @@ public class FishSFAgent : Agent {
         m_FishTrainer.fishEaten += 1;
         EndEpisode();
     }
+
+    private void OnMouseDown()
+    {
+        GameObject.Find("Main Camera").GetComponent<cameraControl>().followWho = this.gameObject;
+    }
 }
