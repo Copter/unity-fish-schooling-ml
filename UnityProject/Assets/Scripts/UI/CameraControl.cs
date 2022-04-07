@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class cameraControl : MonoBehaviour
+public class CameraControl : MonoBehaviour
 {
     private Vector3 ResetCamera; // original camera position
     private Vector3 Origin; // place where mouse is first pressed
@@ -17,13 +17,16 @@ public class cameraControl : MonoBehaviour
     public Text uiText;
     public string followName = "";
 
+    public Text controlsText;
+
     // Start is called before the first frame update
     void Start()
     {
         ResetCamera = Camera.main.transform.position;
         ResetZoom = Camera.main.orthographicSize;
 
-        uiText = GameObject.Find("UI Text").GetComponent<Text>();
+        if (uiText == null) uiText = GameObject.Find("UI Text").GetComponent<Text>();
+        if (controlsText == null) controlsText = GameObject.Find("Controls Text").GetComponent<Text>();
     }
 
     // Update is called once per frame
@@ -52,46 +55,57 @@ public class cameraControl : MonoBehaviour
             transform.position = Origin - Difference;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space)) // reset camera to original position
+        if (Input.GetKeyDown(KeyCode.Space)) // Reset camera to original position
         {
             transform.position = ResetCamera;
             Camera.main.orthographicSize = ResetZoom;
+            followWho = null;
         }
 
         Camera.main.orthographicSize -= 8 * Input.mouseScrollDelta.y;
         if (Camera.main.orthographicSize < 8) Camera.main.orthographicSize = 8;
 
-        if (Input.GetMouseButton(1)) followWho = null;
+        //if (Input.GetMouseButton(1)) followWho = null;
 
         // Game Speed Controls
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.J) && Time.timeScale > 0f)
         {
             Time.timeScale += -0.25f;
             Time.timeScale = Mathf.Round(100 * Time.timeScale) / 100;
-            print("Simulation Speed = " + Time.timeScale);
         }
 
         if (Input.GetKeyDown(KeyCode.L))
         {
             Time.timeScale += 0.25f;
             Time.timeScale = Mathf.Round(100 * Time.timeScale) / 100;
-            print("Simulation Speed = " + Time.timeScale);
         }
 
         if (Input.GetKeyDown(KeyCode.K))
         {
-            Time.timeScale = 1f;
-            print("Simulation Speed = " + Time.timeScale);
+            if (Time.timeScale == 0f)
+            {
+                Time.timeScale = 1f;
+            }
+            else
+            {
+                Time.timeScale = 0f;
+            }
+            
         }
 
-        uiText.text = "Camera Position: (" + transform.position.x + ", " + transform.position.y + ")"
-            + "\n[Scroll] Camera Zoom : " + Mathf.Round(100 * ResetZoom / Camera.main.orthographicSize) / 100
-            + "x\n[J, K, L] Simulation Speed: " + Time.timeScale + "x";
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            controlsText.enabled = controlsText.enabled? false:true;
+        }
+
+        uiText.text = "Camera Position: (" + Mathf.Round(100 * transform.position.x)/100 + ", " + Mathf.Round(100 * transform.position.y)/100 + ")"
+            + "\nCamera Zoom : " + Mathf.Round(100 * ResetZoom / Camera.main.orthographicSize) / 100
+            + "x\nSimulation Speed: " + Time.timeScale + "x";
 
         if (followName != "") {
             uiText.text += "\nFollowing: " + followName;
         }
 
-        uiText.text += "\n\n[Space] Reset camera";
+        //uiText.text += "\n\n[Space] Reset Camera";
     }
 }

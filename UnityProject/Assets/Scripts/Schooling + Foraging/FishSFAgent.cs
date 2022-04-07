@@ -406,8 +406,8 @@ public class FishSFAgent : Agent {
 
     private void OnMouseDown()
     {
-        GameObject.Find("Main Camera").GetComponent<cameraControl>().followWho = gameObject;
-        GameObject.Find("Main Camera").GetComponent<cameraControl>().followName = gameObject.name;
-        GameObject.Find("Main Camera").GetComponent<cameraControl>().framesFollowed = 0;
+        GameObject.Find("Main Camera").GetComponent<CameraControl>().followWho = gameObject;
+        GameObject.Find("Main Camera").GetComponent<CameraControl>().followName = gameObject.name;
+        GameObject.Find("Main Camera").GetComponent<CameraControl>().framesFollowed = 0;
     }
 }
