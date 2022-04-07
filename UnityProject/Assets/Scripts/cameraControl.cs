@@ -84,12 +84,14 @@ public class cameraControl : MonoBehaviour
             print("Simulation Speed = " + Time.timeScale);
         }
 
-        uiText.text = "Camera Position: " + transform.position
-            + "\nCamera Zoom: " + Mathf.Round(100 * ResetZoom / Camera.main.orthographicSize) / 100
-            + "x\nSimulation Speed: " + Time.timeScale + "x";
+        uiText.text = "Camera Position: (" + transform.position.x + ", " + transform.position.y + ")"
+            + "\n[Scroll] Camera Zoom : " + Mathf.Round(100 * ResetZoom / Camera.main.orthographicSize) / 100
+            + "x\n[J, K, L] Simulation Speed: " + Time.timeScale + "x";
 
         if (followName != "") {
             uiText.text += "\nFollowing: " + followName;
         }
+
+        uiText.text += "\n\n[Space] Reset camera";
     }
 }
