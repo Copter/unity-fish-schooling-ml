@@ -57,9 +57,12 @@ public class BoxSelector : MonoBehaviour
 
         if (Input.GetMouseButtonUp(1))
         {
-            GameObject.Find("Main Camera").GetComponent<CameraControl>().followWho = gameObject;
-            GameObject.Find("Main Camera").GetComponent<CameraControl>().followName = "Group of " + selectedColliders.Length + " fish";
-            GameObject.Find("Main Camera").GetComponent<CameraControl>().framesFollowed = 0;
+            if (selectedColliders.Length > 0)
+            {
+                GameObject.Find("Main Camera").GetComponent<CameraControl>().followWho = gameObject;
+                GameObject.Find("Main Camera").GetComponent<CameraControl>().followName = "Group of " + selectedColliders.Length + " fish";
+                GameObject.Find("Main Camera").GetComponent<CameraControl>().framesFollowed = 0;
+            }
 
             lineRender.positionCount = 0;
             Physics2D.OverlapAreaAll(new Vector2(-10000, -10000), new Vector2(-10000, -10000), LayerMask.GetMask("Agent"));
