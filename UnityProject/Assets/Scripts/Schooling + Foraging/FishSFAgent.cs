@@ -89,8 +89,8 @@ public class FishSFAgent : Agent {
     private Dictionary<Vector2f, Site> sites;
     private List<Edge> edges;
     public bool renderVoronoi = false;
-
     private BufferSensorComponent fishBufferSensor;
+    private VoronoiDiagram voronoiDiagram;
 
     public override void Initialize() {
         m_FishTrainer = FindObjectOfType<FishTrainer>();
@@ -99,6 +99,7 @@ public class FishSFAgent : Agent {
         // m_BufferSensors = GetComponents<BufferSensorComponent>();
         fishBufferSensor = GetComponent<BufferSensorComponent>();
         RayPerceptionSensorComponent2D[] sensorComponents = GetComponents<RayPerceptionSensorComponent2D>();
+        voronoiDiagram = FindObjectOfType<VoronoiDiagram>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         foodSensorComponent = sensorComponents[0];
 
@@ -138,23 +139,23 @@ public class FishSFAgent : Agent {
         }
         neighborCount = neighborFishes.Count;
 
-#nullable enable
-        NeighborFish? bestNeighbor = null;
-        NeighborFish? worstNeighbor = null;
-#nullable disable
+        // #nullable enable
+        //         NeighborFish? bestNeighbor = null;
+        //         NeighborFish? worstNeighbor = null;
+        // #nullable disable
         foreach (NeighborFish neighborFish in neighborFishes) {
-            if (neighborFish.FishComponent.foodSensoryIntensity > 0.1) {
-                if (!bestNeighbor.HasValue)
-                    bestNeighbor = neighborFish;
-                else if (neighborFish.FishComponent.foodSensoryIntensity > bestNeighbor.Value.FishComponent.foodSensoryIntensity)
-                    bestNeighbor = neighborFish;
-            }
-            if (neighborFish.FishComponent.predatorSensoryIntensity > 0.1) {
-                if (!worstNeighbor.HasValue)
-                    worstNeighbor = neighborFish;
-                else if (neighborFish.FishComponent.predatorSensoryIntensity > worstNeighbor.Value.FishComponent.predatorSensoryIntensity)
-                    worstNeighbor = neighborFish;
-            }
+            // if (neighborFish.FishComponent.foodSensoryIntensity > 0.1) {
+            //     if (!bestNeighbor.HasValue)
+            //         bestNeighbor = neighborFish;
+            //     else if (neighborFish.FishComponent.foodSensoryIntensity > bestNeighbor.Value.FishComponent.foodSensoryIntensity)
+            //         bestNeighbor = neighborFish;
+            // }
+            // if (neighborFish.FishComponent.predatorSensoryIntensity > 0.1) {
+            //     if (!worstNeighbor.HasValue)
+            //         worstNeighbor = neighborFish;
+            //     else if (neighborFish.FishComponent.predatorSensoryIntensity > worstNeighbor.Value.FishComponent.predatorSensoryIntensity)
+            //         worstNeighbor = neighborFish;
+            // }
 
             FishSFAgent agent = neighborFish.FishComponent;
             Vector3 pos = neighborFish.GetRelativePos(this.transform);
@@ -169,40 +170,41 @@ public class FishSFAgent : Agent {
             predatorPos = visiblePredators[0].GetRelativePos(this.transform);
             predatorVel = visiblePredators[0].GetRelativeVelocity(this.transform);
         }
-
-        sensor.AddObservation(rb.velocity.magnitude);
+        Vector2 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        sensor.AddObservation(localVelocity.x);
+        sensor.AddObservation(localVelocity.y);
 
         sensor.AddObservation(predatorPos.x);
         sensor.AddObservation(predatorPos.y);
         sensor.AddObservation(predatorVel.x);
         sensor.AddObservation(predatorVel.y);
 
-        if (bestNeighbor is null) {
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-        } else {
-            Vector3 bestNeighborPos = bestNeighbor.Value.GetRelativePos(this.transform);
-            Vector3 bestNeighborVel = bestNeighbor.Value.GetRelativeVelocity(this.transform);
-            sensor.AddObservation(bestNeighborPos.x);
-            sensor.AddObservation(bestNeighborPos.y);
-            sensor.AddObservation(bestNeighborVel.x);
-            sensor.AddObservation(bestNeighborVel.y);
-        }
-        if (worstNeighbor is null) {
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-            sensor.AddObservation(0);
-        } else {
-            Vector3 worstNeighborPos = worstNeighbor.Value.GetRelativePos(this.transform);
-            Vector3 worstNeighborVel = worstNeighbor.Value.GetRelativeVelocity(this.transform);
-            sensor.AddObservation(worstNeighborPos.x);
-            sensor.AddObservation(worstNeighborPos.y);
-            sensor.AddObservation(worstNeighborVel.x);
-            sensor.AddObservation(worstNeighborVel.y);
-        }
+        // if (bestNeighbor is null) {
+        //     sensor.AddObservation(0);
+        //     sensor.AddObservation(0);
+        //     sensor.AddObservation(0);
+        //     sensor.AddObservation(0);
+        // } else {
+        //     Vector3 bestNeighborPos = bestNeighbor.Value.GetRelativePos(this.transform);
+        //     Vector3 bestNeighborVel = bestNeighbor.Value.GetRelativeVelocity(this.transform);
+        //     sensor.AddObservation(bestNeighborPos.x);
+        //     sensor.AddObservation(bestNeighborPos.y);
+        //     sensor.AddObservation(bestNeighborVel.x);
+        //     sensor.AddObservation(bestNeighborVel.y);
+        // }
+        // if (worstNeighbor is null) {
+        //     sensor.AddObservation(0);
+        //     sensor.AddObservation(0);
+        //     sensor.AddObservation(0);
+        //     sensor.AddObservation(0);
+        // } else {
+        //     Vector3 worstNeighborPos = worstNeighbor.Value.GetRelativePos(this.transform);
+        //     Vector3 worstNeighborVel = worstNeighbor.Value.GetRelativeVelocity(this.transform);
+        //     sensor.AddObservation(worstNeighborPos.x);
+        //     sensor.AddObservation(worstNeighborPos.y);
+        //     sensor.AddObservation(worstNeighborVel.x);
+        //     sensor.AddObservation(worstNeighborVel.y);
+        // }
     }
 
     public void Update() {
@@ -212,21 +214,12 @@ public class FishSFAgent : Agent {
         this.spriteRenderer.color = new Color(1, (30 - this.rb.velocity.magnitude) / 20, (30 - this.rb.velocity.magnitude) / 20, 1);
         this.ApparentSpeed = rb.velocity.magnitude;
         // if (this.renderVoronoi) {
-        if (Selection.gameObjects.Contains(this.gameObject) && m_FishTrainer.renderVoronoiSelected) {
-            List<Vector2f> points = new List<Vector2f>();
-            Vector2 VoronoiOrigin = new Vector2(this.transform.position.x - 50f, this.transform.position.y - 50f);
-            points.Add(new Vector2f(this.transform.position.x, this.transform.position.y));
-            if (this.neighborFishes.Count > 0) {
-                points = this.neighborFishes.Select((fish, i) => {
-                    Vector2 pos = fish.FishComponent.transform.position;
-                    return new Vector2f(pos.x, pos.y);
-                }).ToList();
-            }
-            VoronoiDiagram voronoiDiagram = FindObjectOfType<VoronoiDiagram>();
-            voronoiDiagram.bounds = new Rectf(VoronoiOrigin.x, VoronoiOrigin.y, 100f, 100f);
-            voronoiDiagram.points = points;
+        bool inVoronoiList = voronoiDiagram.selectedFish.Contains(this);
+        if (Selection.gameObjects.Contains(this.gameObject)) {
+            if (!inVoronoiList) voronoiDiagram.selectedFish.Add(this);
+        } else {
+            if (inVoronoiList) voronoiDiagram.selectedFish.Remove(this);
         }
-        // GetComponent<SpriteRenderer>().color = new Color(1, 1 - foodSensoryIntensity, 1 - foodSensoryIntensity, 1);
     }
 
     private (List<NeighborFish>, List<VisiblePredator>) ScanEnvironment() {

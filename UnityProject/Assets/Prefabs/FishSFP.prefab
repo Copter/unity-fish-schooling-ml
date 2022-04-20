@@ -205,7 +205,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SensorName: FishBufferSensor
   m_ObservableSize: 6
-  m_MaxNumObservables: 25
+  m_MaxNumObservables: 24
 --- !u!114 &1614552258910242779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,7 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 13
+    VectorObservationSize: 6
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
@@ -228,7 +228,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 46b80575119d6ac4ebcd0520ab817b45, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: f9c60fe9bc0c33b4d80c0f99acbc3ac4, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF

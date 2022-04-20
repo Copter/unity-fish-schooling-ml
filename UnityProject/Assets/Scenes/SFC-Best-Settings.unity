@@ -266,6 +266,7 @@ MonoBehaviour:
   predatorMaxStomach: 10
   predatorSwimToCluster: 0
   scoreText: {fileID: 1860776159}
+  renderVoronoiSelected: 1
   renderVisionConeSelected: 0
   renderNeighborSensorSelected: 0
   renderNeighborRaySelected: 1
@@ -295,6 +296,50 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1437516821889319954}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &946243721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 946243723}
+  - component: {fileID: 946243722}
+  m_Layer: 0
+  m_Name: Voronoi
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &946243722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946243721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b9392ae6cad24f4b8e3b9da3a367ce4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectedFish: []
+--- !u!4 &946243723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946243721}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.7, y: -1, z: -12762.065}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1420030934
 GameObject:
   m_ObjectHideFlags: 0
