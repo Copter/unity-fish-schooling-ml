@@ -19,19 +19,22 @@ public class Predator : MonoBehaviour {
     [field: SerializeField, ReadOnlyField]
     private bool inFoodZone = false;
 
-    [Header("Abilities")]
-    [field: SerializeField]
+    [Header("Abilities (edit in FishTrainer)")]
+    [field: SerializeField, ReadOnlyField]
     private float cruiseSpeed = 10f;
-    [field: SerializeField]
+    [field: SerializeField, ReadOnlyField]
     private float chaseSpeed = 22f;
-    [field: SerializeField]
+    [field: SerializeField, ReadOnlyField]
     private float visibleRadius = 40f;
-    [field: SerializeField]
+    [field: SerializeField, ReadOnlyField]
     private float steerStrength = 5f;
-    [field: SerializeField]
+    [field: SerializeField, ReadOnlyField]
     private float chaseForceMagnitude = 30f;
-    [field: SerializeField]
+    [field: SerializeField, ReadOnlyField]
     private int maxStomach = 10;
+    [field: SerializeField, ReadOnlyField]
+    private bool swimToCluster;
+
 
     [NonSerialized]
     public Rigidbody2D rb;
@@ -39,15 +42,24 @@ public class Predator : MonoBehaviour {
     private int stomachCounter = 0;
     [NonSerialized]
     private FishTrainer fishTrainer;
+    [NonSerialized]
     public Block block;
+    [NonSerialized]
     public FishTankSF tank;
-    [field: SerializeField]
-    private bool swimToCluster;
 
     // Start is called before the first frame update
     void Start() {
         this.rb = GetComponent<Rigidbody2D>();
         fishTrainer = FindObjectOfType<FishTrainer>();
+
+        this.cruiseSpeed = fishTrainer.predatorCruiseSpeed;
+        this.chaseSpeed = fishTrainer.predatorChaseSpeed;
+        this.visibleRadius = fishTrainer.predatorVisibleRadius;
+        this.steerStrength = fishTrainer.predatorSteerStrength;
+        this.chaseForceMagnitude = fishTrainer.predatorChaseForceMagnitude;
+        this.maxStomach = fishTrainer.predatorMaxStomach;
+        this.swimToCluster = fishTrainer.predatorSwimToCluster;
+
         this.rb.velocity = transform.up * this.cruiseSpeed;
     }
     void FixedUpdate() {
@@ -97,7 +109,6 @@ public class Predator : MonoBehaviour {
             // Continuous Actions
             this.target = closestFish.FishComponent.transform;
             MoveTowardPoint(closestFish.GetRelativePos(this.transform));
-
             if (rb.velocity.magnitude > chaseSpeed) {
                 rb.velocity *= 0.95f;
             }
@@ -106,6 +117,7 @@ public class Predator : MonoBehaviour {
             }
         } else {
             this.target = null;
+            RandomSteer((Mathf.PerlinNoise(transform.position.x * 0.1f, transform.position.y * 0.1f) * 2) - 1);
             if (rb.velocity.magnitude > cruiseSpeed) {
                 rb.velocity *= 0.95f;
             }
@@ -134,6 +146,12 @@ public class Predator : MonoBehaviour {
     public void Steer(float input) {
         Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
         Vector2 steerLeftForce = steerDirVector.normalized * steerStrength * Mathf.Clamp(input, -1f, 1f);
+        this.rb.AddForce(steerLeftForce);
+    }
+
+    public void RandomSteer(float input) {
+        Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
+        Vector2 steerLeftForce = steerDirVector.normalized * steerStrength * 5 * Mathf.Clamp(input, -1f, 1f);
         this.rb.AddForce(steerLeftForce);
     }
     private List<NeighborFish> ScanEnvironment() {
@@ -177,7 +195,6 @@ public class Predator : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("agent")) {
-            Debug.Log("Eat");
             stomach += 1;
             fishEaten += 1;
             collision.transform.GetComponent<FishSFAgent>().OnEaten();

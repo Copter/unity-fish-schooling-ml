@@ -22,6 +22,9 @@ public class FoodClusterSF : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+    }
+
+    void FixedUpdate() {
         bool empty = true;
         for (int i = 0; i < foodArray.Count; i++) {
             if (foodArray[i] != null) empty = false;

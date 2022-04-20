@@ -8,10 +8,14 @@ public class FishTankSF : MonoBehaviour {
     public GameObject clusterPrefab;
     public GameObject fishPrefab;
     public GameObject blockPrefab;
-    public int numPredators;
-    public int numFish;
-    public int numCluster;
-    public float fishSpawnRange;
+    [field: SerializeField, ReadOnlyField]
+    private int numPredators;
+    [field: SerializeField, ReadOnlyField]
+    private int numFish;
+    [field: SerializeField, ReadOnlyField]
+    private int numCluster;
+    [field: SerializeField, ReadOnlyField]
+    private float fishSpawnRange;
     public List<FoodClusterSF> foodClusters = new List<FoodClusterSF>();
     public List<FishSFAgent> fishes = new List<FishSFAgent>();
 
@@ -29,6 +33,12 @@ public class FishTankSF : MonoBehaviour {
 
     private void Start() {
         m_FishTrainer = FindObjectOfType<FishTrainer>();
+
+        this.numPredators = m_FishTrainer.predatorsPerTank;
+        this.numFish = m_FishTrainer.fishPerTank;
+        this.numCluster = m_FishTrainer.clustersPerTank;
+        this.fishSpawnRange = m_FishTrainer.fishSpawnRange;
+
         for (int i = 0; i < numFish; i++) {
             GameObject fishGameObject = Instantiate(fishPrefab, new Vector3(0f, 0f, 0f) + transform.position,
                   Quaternion.Euler(new Vector3(0f, 0f, 0f)));
@@ -72,12 +82,7 @@ public class FishTankSF : MonoBehaviour {
         }
     }
 
-    private void Update() {
-        if (Time.time >= nextUpdate) {
-            nextUpdate = Mathf.FloorToInt(Time.time) + 1;
-            UpdateOnSchedule();
-        }
-
+    private void FixedUpdate() {
         foreach (FishSFAgent fish in fishes) {
             Vector3 shiftVector = new Vector3(-tankWidth * 0.5f, tankHeight * 0.5f, 0);
             Vector2 origin = transform.position + shiftVector;
@@ -131,6 +136,13 @@ public class FishTankSF : MonoBehaviour {
         }
     }
 
+    private void Update() {
+        if (Time.time >= nextUpdate) {
+            nextUpdate = Mathf.FloorToInt(Time.time) + 1;
+            UpdateOnSchedule();
+        }
+    }
+
     private void UpdateOnSchedule() {
         fishGroups = GetFishGroups();
         List<int> groupings = new List<int>();
@@ -171,7 +183,10 @@ public class FishTankSF : MonoBehaviour {
         tankHeight = wall.Find("borderR").transform.localScale.y * wall.localScale.x;
         int numHorizontalGrid = (int)(tankWidth / blockPrefab.transform.localScale.x);
         int numVerticalGrid = (int)(tankHeight / blockPrefab.transform.localScale.y);
-        CreateFoodCluster(numCluster, clusterPrefab, cluster_level);
+        if (cluster_level >= 0.4)
+            CreateFoodCluster(numCluster, clusterPrefab, cluster_level);
+        else
+            CreateFoodCluster(3, clusterPrefab, cluster_level);
         CreateBlocks(numHorizontalGrid, numVerticalGrid, tankWidth, tankHeight);
     }
 
@@ -183,6 +198,7 @@ public class FishTankSF : MonoBehaviour {
                 Quaternion.Euler(new Vector3(0f, 0f, 0f)));
                 block.transform.parent = this.transform;
                 Block blockComponent = block.GetComponent<Block>();
+                blockComponent.spriteRenderer = blockComponent.transform.Find("BlockSprite").GetComponent<SpriteRenderer>();
                 gridBlocks[i, j] = blockComponent;
                 blockComponent.blockXPos = i;
                 blockComponent.blockYPos = j;

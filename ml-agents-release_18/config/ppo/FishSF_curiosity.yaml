@@ -38,19 +38,10 @@ environment_parameters:
                   behavior: FishSF
                   signal_smoothing: true
                   min_lesson_length: 0
-                  threshold: 0.3
-                  require_reset: true
-              value: 0.5
-            - name: Lesson1
-              completion_criteria:
-                  measure: progress
-                  behavior: FishSF
-                  signal_smoothing: true
-                  min_lesson_length: 0
-                  threshold: 0.6
+                  threshold: 1.0
                   require_reset: true
               value: 0.4
-            - name: Lesson2
+            - name: Lesson1
               completion_criteria:
                   measure: progress
                   behavior: FishSF
@@ -58,4 +49,4 @@ environment_parameters:
                   min_lesson_length: 0
                   threshold: 1.0
                   require_reset: true
-              value: 0.3
+              value: 0.4

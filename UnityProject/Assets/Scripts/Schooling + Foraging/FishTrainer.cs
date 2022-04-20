@@ -5,28 +5,87 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class FishTrainer : MonoBehaviour {
-    [HideInInspector]
-    public GameObject[] agents;
-    [HideInInspector]
-    public FishTankSF[] listArea;
+    [Header("Statistics")]
+    [field: SerializeField, ReadOnlyField]
     private float avgNeighbors = 0f;
-    private int avgNeighborTicker = 0;
+    [field: SerializeField, ReadOnlyField]
     public int foodEaten = 0;
-    // public int foodEatenWhenNotHungry = 0;
-    // public int foodEatenWhenHungry = 0;
+    [field: SerializeField, ReadOnlyField]
     public float totalScore = 0;
+    [field: SerializeField, ReadOnlyField]
     public int totalAgentHitCount = 0;
+    [field: SerializeField, ReadOnlyField]
     public int totalWallHitCount = 0;
-    public int timeScale = 10;
-    public Text scoreText;
-    public float defaultClusterLevel = 1f;
+    [field: SerializeField, ReadOnlyField]
     public int fishEaten = 0;
+    [field: SerializeField, ReadOnlyField]
+    private int totalFish = 1;
+
+    [Header("Tank Settings")]
+    public int fishPerTank;
+    public int predatorsPerTank;
+    public int clustersPerTank;
+    public int fishSpawnRange;
+    [Header("Agent Settings")]
+    // Abilities
+    [field: SerializeField]
+    public float agentSteerStrength = 25f;
+    [field: SerializeField]
+    public float agentMaxSpeed = 20f;
+    [field: SerializeField]
+    public float agentMinSpeed = 10f;
+    [field: SerializeField]
+    public float agentAccelerationConstant = 50f;
+    [field: SerializeField]
+    public float agentNeighborSensorRadius = 40f;
+    [field: SerializeField]
+    public float agentPredatorSensorRadius = 65f;
+    // Rewards
+    [field: SerializeField]
+    public float onEatenReward = -100f;
+    [field: SerializeField]
+    public float eatReward = 2.5f;
+    [field: SerializeField]
+    public float loseNeighborReward = -0.3f;
+    [field: SerializeField]
+    public float wallCrashReward = -3f;
+    [field: SerializeField]
+    public float neighborCrashReward = -3f;
+    [field: SerializeField]
+    public float idleReward = 0f;
+    [Header("Predator Settings")]
+    [field: SerializeField]
+    public float predatorCruiseSpeed = 10f;
+    [field: SerializeField]
+    public float predatorChaseSpeed = 22f;
+    [field: SerializeField]
+    public float predatorVisibleRadius = 40f;
+    [field: SerializeField]
+    public float predatorSteerStrength = 5f;
+    [field: SerializeField]
+    public float predatorChaseForceMagnitude = 30f;
+    [field: SerializeField]
+    public int predatorMaxStomach = 10;
+    [field: SerializeField]
+    public bool predatorSwimToCluster = false;
+    [Header("UI Settings")]
+    public Text scoreText;
+    public bool renderVoronoiSelected = true;
     public bool renderVisionConeSelected = false;
     public bool renderNeighborSensorSelected = false;
     public bool renderNeighborRaySelected = true;
     public bool renderPredatorSensorSelected = false;
     public bool renderPredatorRaySelected = true;
     public bool renderNeighborRayAll = false;
+    [Header("Trainer Settings")]
+    [field: SerializeField]
+    public float defaultClusterLevel = 1f;
+    [HideInInspector]
+    public GameObject[] agents;
+    [HideInInspector]
+    public FishTankSF[] listArea;
+    [HideInInspector]
+    private int avgNeighborTicker = 0;
     private List<int> fishGroups = new List<int>();
 
     StatsRecorder m_Recorder;
@@ -58,7 +117,8 @@ public class FishTrainer : MonoBehaviour {
         foreach (var fa in listArea) {
             fa.ResetTank(agents, cluster_level);
         }
-
+        int agentCount = agents.Count();
+        totalFish = agentCount > 0 ? agentCount : 1;
         totalScore = 0;
     }
 
@@ -96,9 +156,9 @@ public class FishTrainer : MonoBehaviour {
             averageGroupSize = (float)fishGroups.Average();
             maximumGroupSize = fishGroups.Max();
         }
-        scoreText.text = $"TotalScore: {totalScore}\n" +
-        $"TotalWallHit: {totalWallHitCount}\n" +
-        $"TotalAgentHit: {totalAgentHitCount}\n" +
+        scoreText.text = $"AverageScore: {totalScore / totalFish}\n" +
+        $"AvgWallHit: {totalWallHitCount / totalFish}\n" +
+        $"AverageAgentHit: {totalAgentHitCount / totalFish}\n" +
         $"AvgNeighborCount: {avgNeighbors}\n" +
         $"AvgGroupSize: {averageGroupSize}\n" +
         $"MaxGroupSize: {maximumGroupSize}\n" +
@@ -116,6 +176,7 @@ public class FishTrainer : MonoBehaviour {
             m_Recorder.Add("Agent/avgGroupSize", averageGroupSize);
             m_Recorder.Add("Agent/maximumGroupSize", maximumGroupSize);
             m_Recorder.Add("Agent/TotalScore", totalScore);
+            m_Recorder.Add("Agent/AverageScore", totalScore / totalFish);
             m_Recorder.Add("Agent/TotalWallHit", totalWallHitCount);
             m_Recorder.Add("Agent/TotalAgentHit", totalAgentHitCount);
             m_Recorder.Add("Agent/avgNeighbors", avgNeighbors);

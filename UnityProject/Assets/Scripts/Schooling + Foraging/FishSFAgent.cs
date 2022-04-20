@@ -5,31 +5,48 @@ using Unity.MLAgents.Actuators;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using csDelaunay;
+using UnityEditor;
 
 public class FishSFAgent : Agent {
 
     //public bool allowKeyboardControl = false;
     public bool observe = false;
     [NonSerialized]
-    private BufferSensorComponent m_BufferSensor;
+    private BufferSensorComponent[] m_BufferSensors;
     [NonSerialized]
     private FishTrainer m_FishTrainer;
     [NonSerialized]
     public Rigidbody2D rb;
 
-    [Header("Abilities")]
-    [field: SerializeField]
-    private float steerStrength = 25f;
-    [field: SerializeField]
-    private float maxSpeed = 20f;
-    [field: SerializeField]
-    private float minSpeed = 10f;
-    [field: SerializeField]
-    private float accelerationConstant = 50f;
-    [field: SerializeField]
-    private float neighborSensorRadius = 40f;
-    [field: SerializeField]
-    private float predatorSensorRadius = 65f;
+    [Header("Abilities (edit in FishTrainer)")]
+    [field: SerializeField, ReadOnlyField]
+    private float steerStrength;
+    [field: SerializeField, ReadOnlyField]
+    private float maxSpeed;
+    [field: SerializeField, ReadOnlyField]
+    private float minSpeed;
+    [field: SerializeField, ReadOnlyField]
+    private float accelerationConstant;
+    [field: SerializeField, ReadOnlyField]
+    private float neighborSensorRadius;
+    [field: SerializeField, ReadOnlyField]
+    private float predatorSensorRadius;
+
+    [Header("Rewards (edit in FishTrainer)")]
+    // Rewards
+    [field: SerializeField, ReadOnlyField]
+    private float onEatenReward;
+    [field: SerializeField, ReadOnlyField]
+    private float eatReward;
+    [field: SerializeField, ReadOnlyField]
+    private float loseNeighborReward;
+    [field: SerializeField, ReadOnlyField]
+    private float wallCrashReward;
+    [field: SerializeField, ReadOnlyField]
+    private float neighborCrashReward;
+    [field: SerializeField, ReadOnlyField]
+    private float idleReward;
 
     [Header("Statistics")]
     [field: SerializeField, ReadOnlyField]
@@ -51,19 +68,6 @@ public class FishSFAgent : Agent {
     [field: SerializeField, ReadOnlyField]
     private bool predatorVisible = false;
 
-    [Header("Rewards")]
-    // Rewards
-    [field: SerializeField]
-    private float onEatenReward = -300f;
-    [field: SerializeField]
-    private float eatReward = 2.5f;
-    [field: SerializeField]
-    private float loseNeighborReward = -0.25f;
-    [field: SerializeField]
-    private float wallCrashReward = -3f;
-    [field: SerializeField]
-    private float neighborCrashReward = -3f;
-
     [Header("Neighbors")]
     [field: SerializeField, ReadOnlyField]
     public List<NeighborFish> neighborFishes = new List<NeighborFish>();
@@ -76,21 +80,40 @@ public class FishSFAgent : Agent {
     // private RayPerceptionSensorComponent2D m_PredatorSensorComponent;
     [NonSerialized]
     private EnvironmentParameters environmentParameters;
-
-    public SpriteRenderer spriteRenderer;
-
+    [NonSerialized]
+    private SpriteRenderer spriteRenderer;
+    [NonSerialized]
     public Block block;
-
+    [NonSerialized]
     public FishTankSF tank;
+    private Dictionary<Vector2f, Site> sites;
+    private List<Edge> edges;
+    public bool renderVoronoi = false;
+
+    private BufferSensorComponent fishBufferSensor;
 
     public override void Initialize() {
         m_FishTrainer = FindObjectOfType<FishTrainer>();
         environmentParameters = Academy.Instance.EnvironmentParameters;
         rb = GetComponent<Rigidbody2D>();
-        m_BufferSensor = GetComponent<BufferSensorComponent>();
+        // m_BufferSensors = GetComponents<BufferSensorComponent>();
+        fishBufferSensor = GetComponent<BufferSensorComponent>();
         RayPerceptionSensorComponent2D[] sensorComponents = GetComponents<RayPerceptionSensorComponent2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         foodSensorComponent = sensorComponents[0];
+
+        this.steerStrength = m_FishTrainer.agentSteerStrength;
+        this.maxSpeed = m_FishTrainer.agentMaxSpeed;
+        this.minSpeed = m_FishTrainer.agentMinSpeed;
+        this.accelerationConstant = m_FishTrainer.agentAccelerationConstant;
+        this.neighborSensorRadius = m_FishTrainer.agentNeighborSensorRadius;
+        this.predatorSensorRadius = m_FishTrainer.agentPredatorSensorRadius;
+        this.onEatenReward = m_FishTrainer.onEatenReward;
+        this.eatReward = m_FishTrainer.eatReward;
+        this.loseNeighborReward = m_FishTrainer.loseNeighborReward;
+        this.wallCrashReward = m_FishTrainer.wallCrashReward;
+        this.neighborCrashReward = m_FishTrainer.neighborCrashReward;
+        this.idleReward = m_FishTrainer.idleReward;
     }
 
     public override void OnEpisodeBegin() {
@@ -106,58 +129,102 @@ public class FishSFAgent : Agent {
     public override void CollectObservations(VectorSensor sensor) {
         (this.neighborFishes, this.visiblePredators) = ScanEnvironment();
 
-        RayPerceptionSensor foodRaySensor = foodSensorComponent.RaySensor;
-        // RayPerceptionSensor predatorRaySensor = m_PredatorSensorComponent.RaySensor;
-        bool tempFoodVisible = false;
-        foreach (RayPerceptionOutput.RayOutput output in foodRaySensor.RayPerceptionOutput.RayOutputs) {
-            if (output.HitGameObject) {
-                if (output.HitGameObject.CompareTag("food")) {
-                    tempFoodVisible = true;
-                }
-            }
-        }
-        foodVisible = tempFoodVisible;
-
-        Vector2 predatorPosition = new Vector2(0f, 0f);
-        Vector2 predatorVelocity = new Vector2(0f, 0f);
-        if (visiblePredators.Count > 0) {
-            predatorPosition = visiblePredators[0].GetRelativePos(this.transform);
-            predatorVelocity = visiblePredators[0].GetRelativeVelocity(this.transform);
-        }
-        var localVelocity = transform.InverseTransformDirection(rb.velocity);
-        sensor.AddObservation(localVelocity.x);
-        sensor.AddObservation(localVelocity.y);
-        sensor.AddObservation(predatorPosition.x);
-        sensor.AddObservation(predatorPosition.y);
-        sensor.AddObservation(predatorVelocity.x);
-        sensor.AddObservation(predatorVelocity.y);
-
-        if (foodVisible) foodSensoryIntensity = 1f;
-        if (predatorVisible) predatorSensoryIntensity = 1f;
-
         //neighborCount
-        if (neighborFishes.Count < neighborCount) {
-            float difference = neighborCount - neighborFishes.Count;
+        if (this.neighborFishes.Count < this.neighborCount) {
+            float difference = Math.Abs(neighborCount - neighborFishes.Count);
             //negative reward punishment for losing neighbors
             float loseNeighborTotalReward = difference * loseNeighborReward;
-            m_FishTrainer.totalScore += loseNeighborTotalReward;
-            this.score += loseNeighborTotalReward;
-            AddReward(loseNeighborTotalReward);
+            this.AddScoreReward(loseNeighborTotalReward);
         }
         neighborCount = neighborFishes.Count;
 
+#nullable enable
+        NeighborFish? bestNeighbor = null;
+        NeighborFish? worstNeighbor = null;
+#nullable disable
         foreach (NeighborFish neighborFish in neighborFishes) {
+            if (neighborFish.FishComponent.foodSensoryIntensity > 0.1) {
+                if (!bestNeighbor.HasValue)
+                    bestNeighbor = neighborFish;
+                else if (neighborFish.FishComponent.foodSensoryIntensity > bestNeighbor.Value.FishComponent.foodSensoryIntensity)
+                    bestNeighbor = neighborFish;
+            }
+            if (neighborFish.FishComponent.predatorSensoryIntensity > 0.1) {
+                if (!worstNeighbor.HasValue)
+                    worstNeighbor = neighborFish;
+                else if (neighborFish.FishComponent.predatorSensoryIntensity > worstNeighbor.Value.FishComponent.predatorSensoryIntensity)
+                    worstNeighbor = neighborFish;
+            }
+
             FishSFAgent agent = neighborFish.FishComponent;
-            Vector2 pos = neighborFish.GetRelativePos(this.transform);
-            Vector2 velocity = neighborFish.Velocity(this.transform);
+            Vector3 pos = neighborFish.GetRelativePos(this.transform);
+            Vector3 velocity = neighborFish.GetRelativeVelocity(this.transform);
             float[] neighborFishData = { pos.x, pos.y, velocity.x, velocity.y, agent.foodSensoryIntensity, agent.predatorSensoryIntensity };
-            m_BufferSensor.AppendObservation(neighborFishData);
+            fishBufferSensor.AppendObservation(neighborFishData);
+        }
+
+        Vector2 predatorPos = new Vector2(0, 0);
+        Vector2 predatorVel = new Vector2(0, 0);
+        if (visiblePredators.Count > 0) {
+            predatorPos = visiblePredators[0].GetRelativePos(this.transform);
+            predatorVel = visiblePredators[0].GetRelativeVelocity(this.transform);
+        }
+
+        sensor.AddObservation(rb.velocity.magnitude);
+
+        sensor.AddObservation(predatorPos.x);
+        sensor.AddObservation(predatorPos.y);
+        sensor.AddObservation(predatorVel.x);
+        sensor.AddObservation(predatorVel.y);
+
+        if (bestNeighbor is null) {
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+        } else {
+            Vector3 bestNeighborPos = bestNeighbor.Value.GetRelativePos(this.transform);
+            Vector3 bestNeighborVel = bestNeighbor.Value.GetRelativeVelocity(this.transform);
+            sensor.AddObservation(bestNeighborPos.x);
+            sensor.AddObservation(bestNeighborPos.y);
+            sensor.AddObservation(bestNeighborVel.x);
+            sensor.AddObservation(bestNeighborVel.y);
+        }
+        if (worstNeighbor is null) {
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+            sensor.AddObservation(0);
+        } else {
+            Vector3 worstNeighborPos = worstNeighbor.Value.GetRelativePos(this.transform);
+            Vector3 worstNeighborVel = worstNeighbor.Value.GetRelativeVelocity(this.transform);
+            sensor.AddObservation(worstNeighborPos.x);
+            sensor.AddObservation(worstNeighborPos.y);
+            sensor.AddObservation(worstNeighborVel.x);
+            sensor.AddObservation(worstNeighborVel.y);
         }
     }
 
     public void Update() {
         if ((Time.frameCount % 100) == 0) {
             m_FishTrainer.UpdateNeighborCount(neighborCount);
+        }
+        this.spriteRenderer.color = new Color(1, (30 - this.rb.velocity.magnitude) / 20, (30 - this.rb.velocity.magnitude) / 20, 1);
+        this.ApparentSpeed = rb.velocity.magnitude;
+        // if (this.renderVoronoi) {
+        if (Selection.gameObjects.Contains(this.gameObject) && m_FishTrainer.renderVoronoiSelected) {
+            List<Vector2f> points = new List<Vector2f>();
+            Vector2 VoronoiOrigin = new Vector2(this.transform.position.x - 50f, this.transform.position.y - 50f);
+            points.Add(new Vector2f(this.transform.position.x, this.transform.position.y));
+            if (this.neighborFishes.Count > 0) {
+                points = this.neighborFishes.Select((fish, i) => {
+                    Vector2 pos = fish.FishComponent.transform.position;
+                    return new Vector2f(pos.x, pos.y);
+                }).ToList();
+            }
+            VoronoiDiagram voronoiDiagram = FindObjectOfType<VoronoiDiagram>();
+            voronoiDiagram.bounds = new Rectf(VoronoiOrigin.x, VoronoiOrigin.y, 100f, 100f);
+            voronoiDiagram.points = points;
         }
         // GetComponent<SpriteRenderer>().color = new Color(1, 1 - foodSensoryIntensity, 1 - foodSensoryIntensity, 1);
     }
@@ -219,16 +286,38 @@ public class FishSFAgent : Agent {
             }
         }
 
+        RayPerceptionSensor foodRaySensor = foodSensorComponent.RaySensor;
+        bool tempFoodVisible = false;
+        foreach (RayPerceptionOutput.RayOutput output in foodRaySensor.RayPerceptionOutput.RayOutputs) {
+            if (output.HitGameObject) {
+                if (output.HitGameObject.CompareTag("food")) {
+                    tempFoodVisible = true;
+                }
+            }
+        }
+        this.foodVisible = tempFoodVisible;
+
         this.predatorVisible = tempPredatorVisible;
 
-        if (!this.foodVisible) this.foodSensoryIntensity = maxFoodIntensity * 0.8f;
+        if (!this.foodVisible) {
+            this.foodSensoryIntensity = maxFoodIntensity > 0.1 ? maxFoodIntensity * 0.8f : 0;
+        } else {
+            this.foodSensoryIntensity = 1f;
+        }
+        if (!this.predatorVisible) {
+            this.predatorSensoryIntensity = maxPredatorIntensity > 0.1 ? maxPredatorIntensity * 0.8f : 0;
+        } else {
+            this.predatorSensoryIntensity = 1f;
+        }
 
-        if (!this.predatorVisible) this.predatorSensoryIntensity = maxPredatorIntensity * 0.8f;
+        tempNeighborFishes.OrderBy(a => a.GetRelativePos(this.transform).sqrMagnitude);
+        tempVisiblePredators.OrderBy(a => a.GetRelativePos(this.transform).sqrMagnitude);
 
         return (tempNeighborFishes, tempVisiblePredators);
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers) {
+        this.AddScoreReward(idleReward);
         MoveAgent(actionBuffers);
     }
 
@@ -282,35 +371,36 @@ public class FishSFAgent : Agent {
     }
 
     private void FixedUpdate() {
-        this.ApparentSpeed = rb.velocity.magnitude;
-        this.spriteRenderer.color = new Color(1, (30 - this.rb.velocity.magnitude) / 20, (30 - this.rb.velocity.magnitude) / 20, 1);
     }
     void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.CompareTag("food")) {
             collision.gameObject.GetComponent<FoodLogicSF>().OnEaten();
             Satiate();
             m_FishTrainer.foodEaten += 1;
-            this.score += eatReward;
-            m_FishTrainer.totalScore += eatReward;
-            AddReward(eatReward);
+            this.AddScoreReward(eatReward);
         }
     }
     void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("wall")) {
             m_FishTrainer.totalWallHitCount += 1;
-            m_FishTrainer.totalScore += wallCrashReward;
-            this.score += wallCrashReward;
-            AddReward(wallCrashReward);
+            this.AddScoreReward(wallCrashReward);
         }
 
         if (collision.gameObject.CompareTag("agent")) {
             m_FishTrainer.totalAgentHitCount += 1;
-            m_FishTrainer.totalScore += neighborCrashReward;
-            this.score += neighborCrashReward;
-            AddReward(neighborCrashReward);
+            this.AddScoreReward(neighborCrashReward);
         }
     }
-
+    public void OnEaten() {
+        this.AddScoreReward(onEatenReward);
+        this.m_FishTrainer.fishEaten += 1;
+        EndEpisode();
+    }
+    void AddScoreReward(float reward) {
+        this.score += reward;
+        m_FishTrainer.totalScore += reward;
+        AddReward(reward);
+    }
     private void OnDrawGizmosSelected() {
         if (m_FishTrainer.renderNeighborRaySelected) {
             foreach (NeighborFish fish in neighborFishes) {
@@ -395,12 +485,5 @@ public class FishSFAgent : Agent {
                 Gizmos.DrawLine(transform.position, target);
             }
         }
-    }
-
-    public void OnEaten() {
-        AddReward(onEatenReward);
-        m_FishTrainer.totalScore += onEatenReward;
-        m_FishTrainer.fishEaten += 1;
-        EndEpisode();
     }
 }
