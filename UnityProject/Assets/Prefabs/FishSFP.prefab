@@ -162,7 +162,7 @@ Rigidbody2D:
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!114 &1614552258910242756
@@ -228,7 +228,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: f9c60fe9bc0c33b4d80c0f99acbc3ac4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: cd2d0cbebf1fcf14e87d73c81787350e, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF

@@ -157,8 +157,8 @@ public class FishTrainer : MonoBehaviour {
             maximumGroupSize = fishGroups.Max();
         }
         scoreText.text = $"AverageScore: {totalScore / totalFish}\n" +
-        $"AvgWallHit: {totalWallHitCount / totalFish}\n" +
-        $"AverageAgentHit: {totalAgentHitCount / totalFish}\n" +
+        $"AvgWallHitFrames: {totalWallHitCount / totalFish}\n" +
+        $"AverageAgentHitFrames: {totalAgentHitCount / totalFish}\n" +
         $"AvgNeighborCount: {avgNeighbors}\n" +
         $"AvgGroupSize: {averageGroupSize}\n" +
         $"MaxGroupSize: {maximumGroupSize}\n" +

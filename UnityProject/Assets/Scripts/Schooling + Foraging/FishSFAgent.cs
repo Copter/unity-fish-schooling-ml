@@ -122,9 +122,12 @@ public class FishSFAgent : Agent {
     }
 
     public void SetResetParameters() {
+        ResetPosition();
+        foodEaten = 0;
+    }
+    private void ResetPosition() {
         tank.ResetAgent(this.transform);
         rb.velocity = (maxSpeed + minSpeed) * 0.5f * RandomUnitVector();
-        foodEaten = 0;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -160,7 +163,19 @@ public class FishSFAgent : Agent {
             FishSFAgent agent = neighborFish.FishComponent;
             Vector3 pos = neighborFish.GetRelativePos(this.transform);
             Vector3 velocity = neighborFish.GetRelativeVelocity(this.transform);
-            float[] neighborFishData = { pos.x, pos.y, velocity.x, velocity.y, agent.foodSensoryIntensity, agent.predatorSensoryIntensity };
+            float nPosX = Mathf.Clamp(pos.x / neighborSensorRadius, -1, 1);
+            float nPosY = Mathf.Clamp(pos.y / neighborSensorRadius, -1, 1);
+            float nVelX = Mathf.Clamp(velocity.x / maxSpeed, -1, 1);
+            float nVelY = Mathf.Clamp(velocity.y / maxSpeed, -1, 1);
+            float foodIntensity = Mathf.Clamp(agent.foodSensoryIntensity, 0, 1);
+            float predatorIntensity = Mathf.Clamp(agent.predatorSensoryIntensity, 0, 1);
+            // float nPosX = pos.x;
+            // float nPosY = pos.y;
+            // float nVelX = velocity.x;
+            // float nVelY = velocity.y;
+            // float foodIntensity = agent.foodSensoryIntensity;
+            // float predatorIntensity = agent.predatorSensoryIntensity;
+            float[] neighborFishData = { nPosX, nPosY, nVelX, nVelY, foodIntensity, predatorIntensity };
             fishBufferSensor.AppendObservation(neighborFishData);
         }
 
@@ -170,14 +185,22 @@ public class FishSFAgent : Agent {
             predatorPos = visiblePredators[0].GetRelativePos(this.transform);
             predatorVel = visiblePredators[0].GetRelativeVelocity(this.transform);
         }
-        Vector2 localVelocity = transform.InverseTransformDirection(rb.velocity);
-        sensor.AddObservation(localVelocity.x);
-        sensor.AddObservation(localVelocity.y);
+        Vector2 localVelocity = transform.InverseTransformVector(rb.velocity);
+        sensor.AddObservation(Mathf.Clamp(localVelocity.x / maxSpeed, -1, 1));
+        sensor.AddObservation(Mathf.Clamp(localVelocity.y / maxSpeed, -1, 1));
 
-        sensor.AddObservation(predatorPos.x);
-        sensor.AddObservation(predatorPos.y);
-        sensor.AddObservation(predatorVel.x);
-        sensor.AddObservation(predatorVel.y);
+        sensor.AddObservation(Mathf.Clamp(predatorPos.x / predatorSensorRadius, -1, 1));
+        sensor.AddObservation(Mathf.Clamp(predatorPos.y / predatorSensorRadius, -1, 1));
+        sensor.AddObservation(Mathf.Clamp(predatorVel.x / m_FishTrainer.predatorChaseSpeed, -1, 1));
+        sensor.AddObservation(Mathf.Clamp(predatorVel.y / m_FishTrainer.predatorChaseSpeed, -1, 1));
+
+        // sensor.AddObservation(localVelocity.x);
+        // sensor.AddObservation(localVelocity.y);
+
+        // sensor.AddObservation(predatorPos.y);
+        // sensor.AddObservation(predatorPos.x);
+        // sensor.AddObservation(predatorVel.x);
+        // sensor.AddObservation(predatorVel.y);
 
         // if (bestNeighbor is null) {
         //     sensor.AddObservation(0);
@@ -323,12 +346,12 @@ public class FishSFAgent : Agent {
     }
 
     public void MoveForward(float input) {
-        rb.AddForce(transform.up * accelerationConstant * input);
+        rb.velocity += new Vector2(transform.up.x, transform.up.y) * accelerationConstant * input;
         if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed) // slow it down
         {
-            rb.velocity *= 0.8f;
+            rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
         } else if (rb.velocity.sqrMagnitude < minSpeed * minSpeed) {
-            rb.velocity *= 1.2f;
+            rb.velocity = rb.velocity.normalized * minSpeed;
         }
     }
 
@@ -373,7 +396,7 @@ public class FishSFAgent : Agent {
             this.AddScoreReward(eatReward);
         }
     }
-    void OnCollisionEnter2D(Collision2D collision) {
+    void OnCollisionStay2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("wall")) {
             m_FishTrainer.totalWallHitCount += 1;
             this.AddScoreReward(wallCrashReward);
@@ -387,7 +410,7 @@ public class FishSFAgent : Agent {
     public void OnEaten() {
         this.AddScoreReward(onEatenReward);
         this.m_FishTrainer.fishEaten += 1;
-        EndEpisode();
+        this.ResetPosition();
     }
     void AddScoreReward(float reward) {
         this.score += reward;
@@ -479,8 +502,7 @@ public class FishSFAgent : Agent {
             }
         }
     }
-    private void OnMouseDown()
-    {
+    private void OnMouseDown() {
         GameObject.Find("Main Camera").GetComponent<CameraControl>().followWho = gameObject;
         GameObject.Find("Main Camera").GetComponent<CameraControl>().followName = gameObject.name;
         GameObject.Find("Main Camera").GetComponent<CameraControl>().framesFollowed = 0;
