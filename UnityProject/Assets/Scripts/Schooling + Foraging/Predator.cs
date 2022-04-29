@@ -113,16 +113,17 @@ public class Predator : MonoBehaviour {
                 rb.velocity *= 0.95f;
             }
             if (rb.velocity.magnitude < chaseSpeed) {
-                rb.velocity *= 1.05f;
+                rb.velocity = Vector2.ClampMagnitude(rb.velocity, chaseSpeed);
             }
         } else {
             this.target = null;
-            RandomSteer((Mathf.PerlinNoise(transform.position.x * 0.1f, transform.position.y * 0.1f) * 2) - 1);
+            RandomSteer((Mathf.PerlinNoise(transform.position.x * 0.03f, transform.position.y * 0.03f) * 2) - 1);
             if (rb.velocity.magnitude > cruiseSpeed) {
                 rb.velocity *= 0.95f;
             }
             if (rb.velocity.magnitude < cruiseSpeed) {
                 rb.velocity *= 1.05f;
+                rb.velocity = Vector2.ClampMagnitude(rb.velocity, cruiseSpeed);
             }
             if (hungry && !inFoodZone && swimToCluster) {
                 FishTankSF tank = transform.GetComponentInParent<FishTankSF>();

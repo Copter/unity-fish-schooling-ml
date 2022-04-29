@@ -350,24 +350,33 @@ MonoBehaviour:
   totalWallHitCount: 0
   fishEaten: 0
   totalFish: 1
+  avgFramesNearWall: 0
+  totalFramesNearWall: 0
+  agentSatiatedRatio: 0
   fishPerTank: 75
   predatorsPerTank: 1
   clustersPerTank: 2
   fishSpawnRange: 50
-  agentSteerStrength: 25
+  maxFoodAmount: 300
+  agentSteerStrength: 100
   agentMaxSpeed: 23
   agentMinSpeed: 10
   agentAccelerationConstant: 1
   agentNeighborSensorRadius: 40
   agentPredatorSensorRadius: 65
-  onEatenReward: -50
-  eatReward: 2.5
-  loseNeighborReward: -0.3
-  wallCrashReward: -1
-  neighborCrashReward: -0.5
-  idleReward: 0
+  satiateDuration: 30
+  satiateDecay: 20
+  rewards:
+    onEatenReward: 0
+    eatReward: 0
+    loseNeighborReward: 0
+    wallCrashReward: 0
+    neighborCrashReward: 0
+    idleReward: 0
+    predatorDistanceReward: 0
+    seeNeighborReward: 0
   predatorCruiseSpeed: 10
-  predatorChaseSpeed: 22
+  predatorChaseSpeed: 25
   predatorVisibleRadius: 40
   predatorSteerStrength: 5
   predatorChaseForceMagnitude: 30

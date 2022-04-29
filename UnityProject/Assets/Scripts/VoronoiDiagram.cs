@@ -18,6 +18,7 @@ public class VoronoiDiagram : MonoBehaviour {
         Vector2 bottomLeft = new Vector2(1000000, 1000000);
         Vector2 topRight = new Vector2(-1000000, -1000000);
         List<Vector2f> tempPoints = new List<Vector2f>();
+        if (!m_FishTrainer) return;
         if (m_FishTrainer.renderVoronoiSelected) {
             foreach (FishSFAgent agent in selectedFish) {
                 Vector2 VoronoiOrigin = new Vector2(agent.transform.position.x - 50f, agent.transform.position.y - 50f);
@@ -31,11 +32,6 @@ public class VoronoiDiagram : MonoBehaviour {
                 if (VoronoiOrigin.x > topRight.x) topRight.x = VoronoiOrigin.x;
                 if (VoronoiOrigin.y > topRight.y) topRight.y = VoronoiOrigin.y;
             }
-        }
-        int i = 0;
-        foreach (Vector2f point in tempPoints) {
-            Debug.Log($"{i} = ({point.x}, {point.y})");
-            i++;
         }
 
         Rectf bounds = new Rectf(bottomLeft.x, bottomLeft.y, topRight.x - bottomLeft.x + 100f, topRight.y - bottomLeft.y + 100f);

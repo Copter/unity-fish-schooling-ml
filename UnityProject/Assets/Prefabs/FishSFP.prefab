@@ -61,12 +61,6 @@ MonoBehaviour:
   accelerationConstant: 50
   neighborSensorRadius: 40
   predatorSensorRadius: 65
-  onEatenReward: -100
-  eatReward: 2.5
-  loseNeighborReward: -0.3
-  wallCrashReward: -3
-  neighborCrashReward: -3
-  idleReward: 0
   score: 0
   ApparentSpeed: 0
   accelerationInput: 0
@@ -76,6 +70,10 @@ MonoBehaviour:
   predatorSensoryIntensity: 0
   foodVisible: 0
   predatorVisible: 0
+  hungerCounter: 0
+  stomach: 0
+  satiateDuration: 10
+  satiateDecay: 40
   renderVoronoi: 0
 --- !u!212 &1614552258910242776
 SpriteRenderer:
@@ -219,7 +217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 6
+    VectorObservationSize: 7
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
@@ -228,7 +226,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: cd2d0cbebf1fcf14e87d73c81787350e, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 3456cde9749c5014da1a3a8768e22f4d, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF

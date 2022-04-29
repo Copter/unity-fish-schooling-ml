@@ -161,22 +161,18 @@ public class FishTankSF : MonoBehaviour {
         for (int i = 0; i < num; i++) {
             GameObject cluster = Instantiate(clusterObject, new Vector3(0f, 0f, 0f) + transform.position,
                 Quaternion.Euler(new Vector3(0f, 0f, 0f)));
-            FoodClusterSF clusterComponentcluster = cluster.GetComponent<FoodClusterSF>();
-            clusterComponentcluster.respawnFood = true;
-            clusterComponentcluster.myTank = this;
+            FoodClusterSF clusterComponent = cluster.GetComponent<FoodClusterSF>();
+            clusterComponent.maxFoodAmount = m_FishTrainer.maxFoodAmount;
+            clusterComponent.respawnFood = true;
+            clusterComponent.myTank = this;
             float x_scale = cluster.transform.localScale.x * cluster_level;
             float y_scale = cluster.transform.localScale.y * cluster_level;
             cluster.transform.localScale = new Vector3(x_scale, y_scale, 1);
-            foodClusters.Add(clusterComponentcluster);
+            foodClusters.Add(clusterComponent);
         }
     }
 
     public void ResetTank(GameObject[] agents, float cluster_level) {
-        foreach (GameObject agent in agents) {
-            if (agent.transform.parent == gameObject.transform) {
-                ResetAgent(agent.transform);
-            }
-        }
         Transform wall = transform.Find("Wall");
         wall.localScale = new Vector3(1 / cluster_level, 1 / cluster_level, 1);
         tankWidth = wall.Find("borderU").transform.localScale.x * wall.localScale.x;
@@ -188,6 +184,12 @@ public class FishTankSF : MonoBehaviour {
         else
             CreateFoodCluster(3, clusterPrefab, cluster_level);
         CreateBlocks(numHorizontalGrid, numVerticalGrid, tankWidth, tankHeight);
+
+        foreach (GameObject agent in agents) {
+            if (agent.transform.parent == gameObject.transform) {
+                ResetAgent(agent.transform);
+            }
+        }
     }
 
     void CreateBlocks(int numHorizontalGrid, int numVerticalGrid, float tankWidth, float tankHeight) {

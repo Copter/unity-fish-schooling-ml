@@ -32,21 +32,7 @@ public class FishSFAgent : Agent {
     private float neighborSensorRadius;
     [field: SerializeField, ReadOnlyField]
     private float predatorSensorRadius;
-
-    [Header("Rewards (edit in FishTrainer)")]
-    // Rewards
-    [field: SerializeField, ReadOnlyField]
-    private float onEatenReward;
-    [field: SerializeField, ReadOnlyField]
-    private float eatReward;
-    [field: SerializeField, ReadOnlyField]
-    private float loseNeighborReward;
-    [field: SerializeField, ReadOnlyField]
-    private float wallCrashReward;
-    [field: SerializeField, ReadOnlyField]
-    private float neighborCrashReward;
-    [field: SerializeField, ReadOnlyField]
-    private float idleReward;
+    private FishTrainer.Rewards rewards;
 
     [Header("Statistics")]
     [field: SerializeField, ReadOnlyField]
@@ -67,6 +53,14 @@ public class FishSFAgent : Agent {
     private bool foodVisible = false;
     [field: SerializeField, ReadOnlyField]
     private bool predatorVisible = false;
+    [field: SerializeField, ReadOnlyField]
+    private int hungerCounter = 0;
+    [field: SerializeField, ReadOnlyField]
+    public int stomach = 0;
+    [field: SerializeField, ReadOnlyField]
+    private int satiateDuration = 10;
+    [field: SerializeField, ReadOnlyField]
+    private int satiateDecay = 40;
 
     [Header("Neighbors")]
     [field: SerializeField, ReadOnlyField]
@@ -109,12 +103,9 @@ public class FishSFAgent : Agent {
         this.accelerationConstant = m_FishTrainer.agentAccelerationConstant;
         this.neighborSensorRadius = m_FishTrainer.agentNeighborSensorRadius;
         this.predatorSensorRadius = m_FishTrainer.agentPredatorSensorRadius;
-        this.onEatenReward = m_FishTrainer.onEatenReward;
-        this.eatReward = m_FishTrainer.eatReward;
-        this.loseNeighborReward = m_FishTrainer.loseNeighborReward;
-        this.wallCrashReward = m_FishTrainer.wallCrashReward;
-        this.neighborCrashReward = m_FishTrainer.neighborCrashReward;
-        this.idleReward = m_FishTrainer.idleReward;
+        this.satiateDuration = m_FishTrainer.satiateDuration;
+        this.satiateDecay = m_FishTrainer.satiateDecay;
+        this.rewards = m_FishTrainer.rewards;
     }
 
     public override void OnEpisodeBegin() {
@@ -137,29 +128,14 @@ public class FishSFAgent : Agent {
         if (this.neighborFishes.Count < this.neighborCount) {
             float difference = Math.Abs(neighborCount - neighborFishes.Count);
             //negative reward punishment for losing neighbors
-            float loseNeighborTotalReward = difference * loseNeighborReward;
+            float loseNeighborTotalReward = difference * rewards.loseNeighborReward;
             this.AddScoreReward(loseNeighborTotalReward);
         }
         neighborCount = neighborFishes.Count;
 
-        // #nullable enable
-        //         NeighborFish? bestNeighbor = null;
-        //         NeighborFish? worstNeighbor = null;
-        // #nullable disable
+        int i = 0;
         foreach (NeighborFish neighborFish in neighborFishes) {
-            // if (neighborFish.FishComponent.foodSensoryIntensity > 0.1) {
-            //     if (!bestNeighbor.HasValue)
-            //         bestNeighbor = neighborFish;
-            //     else if (neighborFish.FishComponent.foodSensoryIntensity > bestNeighbor.Value.FishComponent.foodSensoryIntensity)
-            //         bestNeighbor = neighborFish;
-            // }
-            // if (neighborFish.FishComponent.predatorSensoryIntensity > 0.1) {
-            //     if (!worstNeighbor.HasValue)
-            //         worstNeighbor = neighborFish;
-            //     else if (neighborFish.FishComponent.predatorSensoryIntensity > worstNeighbor.Value.FishComponent.predatorSensoryIntensity)
-            //         worstNeighbor = neighborFish;
-            // }
-
+            if (i > 23) break;
             FishSFAgent agent = neighborFish.FishComponent;
             Vector3 pos = neighborFish.GetRelativePos(this.transform);
             Vector3 velocity = neighborFish.GetRelativeVelocity(this.transform);
@@ -177,6 +153,7 @@ public class FishSFAgent : Agent {
             // float predatorIntensity = agent.predatorSensoryIntensity;
             float[] neighborFishData = { nPosX, nPosY, nVelX, nVelY, foodIntensity, predatorIntensity };
             fishBufferSensor.AppendObservation(neighborFishData);
+            i++;
         }
 
         Vector2 predatorPos = new Vector2(0, 0);
@@ -184,10 +161,13 @@ public class FishSFAgent : Agent {
         if (visiblePredators.Count > 0) {
             predatorPos = visiblePredators[0].GetRelativePos(this.transform);
             predatorVel = visiblePredators[0].GetRelativeVelocity(this.transform);
+            if (predatorPos.magnitude > 0)
+                this.AddScoreReward((1 / (predatorPos.magnitude / this.predatorSensorRadius)) * rewards.predatorDistanceReward);
         }
         Vector2 localVelocity = transform.InverseTransformVector(rb.velocity);
         sensor.AddObservation(Mathf.Clamp(localVelocity.x / maxSpeed, -1, 1));
         sensor.AddObservation(Mathf.Clamp(localVelocity.y / maxSpeed, -1, 1));
+        sensor.AddObservation(Mathf.Clamp(stomach / this.satiateDuration, 0, 1));
 
         sensor.AddObservation(Mathf.Clamp(predatorPos.x / predatorSensorRadius, -1, 1));
         sensor.AddObservation(Mathf.Clamp(predatorPos.y / predatorSensorRadius, -1, 1));
@@ -201,33 +181,39 @@ public class FishSFAgent : Agent {
         // sensor.AddObservation(predatorPos.x);
         // sensor.AddObservation(predatorVel.x);
         // sensor.AddObservation(predatorVel.y);
+    }
 
-        // if (bestNeighbor is null) {
-        //     sensor.AddObservation(0);
-        //     sensor.AddObservation(0);
-        //     sensor.AddObservation(0);
-        //     sensor.AddObservation(0);
-        // } else {
-        //     Vector3 bestNeighborPos = bestNeighbor.Value.GetRelativePos(this.transform);
-        //     Vector3 bestNeighborVel = bestNeighbor.Value.GetRelativeVelocity(this.transform);
-        //     sensor.AddObservation(bestNeighborPos.x);
-        //     sensor.AddObservation(bestNeighborPos.y);
-        //     sensor.AddObservation(bestNeighborVel.x);
-        //     sensor.AddObservation(bestNeighborVel.y);
-        // }
-        // if (worstNeighbor is null) {
-        //     sensor.AddObservation(0);
-        //     sensor.AddObservation(0);
-        //     sensor.AddObservation(0);
-        //     sensor.AddObservation(0);
-        // } else {
-        //     Vector3 worstNeighborPos = worstNeighbor.Value.GetRelativePos(this.transform);
-        //     Vector3 worstNeighborVel = worstNeighbor.Value.GetRelativeVelocity(this.transform);
-        //     sensor.AddObservation(worstNeighborPos.x);
-        //     sensor.AddObservation(worstNeighborPos.y);
-        //     sensor.AddObservation(worstNeighborVel.x);
-        //     sensor.AddObservation(worstNeighborVel.y);
-        // }
+    public override void OnActionReceived(ActionBuffers actionBuffers) {
+        if (stomach > 0) {
+            this.AddScoreReward(rewards.seeNeighborReward * this.neighborCount);
+        } else {
+            this.AddScoreReward(rewards.idleReward);
+        }
+        MoveAgent(actionBuffers);
+    }
+
+    public void MoveAgent(ActionBuffers actionBuffers) {
+        var continuousActions = actionBuffers.ContinuousActions;
+        this.MoveSteer(Mathf.Clamp(continuousActions[0], -1f, 1f));
+        this.MoveForward(Mathf.Clamp(continuousActions[1], -1f, 1f));
+        this.accelerationInput = Mathf.Clamp(continuousActions[1], -1f, 1f);
+        transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
+    }
+
+    public void MoveForward(float input) {
+        rb.velocity += new Vector2(transform.up.x, transform.up.y) * accelerationConstant * input;
+        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed) // slow it down
+        {
+            rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
+        } else if (rb.velocity.sqrMagnitude < minSpeed * minSpeed) {
+            rb.velocity = rb.velocity.normalized * minSpeed;
+        }
+    }
+
+    public void MoveSteer(float input) {
+        Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
+        Vector2 steerLeftForce = steerDirVector.normalized * steerStrength * input;
+        rb.AddForce(steerLeftForce);
     }
 
     public void Update() {
@@ -245,9 +231,22 @@ public class FishSFAgent : Agent {
         }
     }
 
+    public void FixedUpdate() {
+        if (hungerCounter >= this.satiateDecay) {
+            hungerCounter = 0;
+            if (stomach > 0) {
+                stomach--;
+            } else {
+                stomach = 0;
+            }
+        } else {
+            hungerCounter++;
+        }
+    }
+
     private (List<NeighborFish>, List<VisiblePredator>) ScanEnvironment() {
         if (!block) {
-            Debug.Log("block not found");
+            // Debug.Log("block not found");
             return (new List<NeighborFish>(), new List<VisiblePredator>());
         }
 
@@ -309,6 +308,9 @@ public class FishSFAgent : Agent {
                 if (output.HitGameObject.CompareTag("food")) {
                     tempFoodVisible = true;
                 }
+                if (output.HitGameObject.CompareTag("wall")) {
+                    this.m_FishTrainer.UpdateFramesNearWall();
+                }
             }
         }
         this.foodVisible = tempFoodVisible;
@@ -332,47 +334,18 @@ public class FishSFAgent : Agent {
         return (tempNeighborFishes, tempVisiblePredators);
     }
 
-    public override void OnActionReceived(ActionBuffers actionBuffers) {
-        this.AddScoreReward(idleReward);
-        MoveAgent(actionBuffers);
-    }
-
-    public void MoveAgent(ActionBuffers actionBuffers) {
-        var continuousActions = actionBuffers.ContinuousActions;
-        this.MoveSteer(Mathf.Clamp(continuousActions[0], -1f, 1f));
-        this.MoveForward(Mathf.Clamp(continuousActions[1], -1f, 1f));
-        this.accelerationInput = Mathf.Clamp(continuousActions[1], -1f, 1f);
-        transform.rotation = Quaternion.LookRotation(Vector3.forward, rb.velocity);
-    }
-
-    public void MoveForward(float input) {
-        rb.velocity += new Vector2(transform.up.x, transform.up.y) * accelerationConstant * input;
-        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed) // slow it down
-        {
-            rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
-        } else if (rb.velocity.sqrMagnitude < minSpeed * minSpeed) {
-            rb.velocity = rb.velocity.normalized * minSpeed;
-        }
-    }
-
-    public void MoveSteer(float input) {
-        Vector2 steerDirVector = new Vector2(rb.velocity.y, -rb.velocity.x);
-        Vector2 steerLeftForce = steerDirVector.normalized * steerStrength * input;
-        rb.AddForce(steerLeftForce);
-    }
-
     public override void Heuristic(in ActionBuffers actionsOut) {
         var continuousActionsOut = actionsOut.ContinuousActions;
-        if (Input.GetKey(KeyCode.D)) {
+        if (Input.GetKey(KeyCode.RightArrow)) {
             continuousActionsOut[0] = 1;
         }
-        if (Input.GetKey(KeyCode.W)) {
+        if (Input.GetKey(KeyCode.UpArrow)) {
             continuousActionsOut[1] = 1;
         }
-        if (Input.GetKey(KeyCode.A)) {
+        if (Input.GetKey(KeyCode.LeftArrow)) {
             continuousActionsOut[0] = -1;
         }
-        if (Input.GetKey(KeyCode.S)) {
+        if (Input.GetKey(KeyCode.DownArrow)) {
             continuousActionsOut[1] = -1;
         }
     }
@@ -384,31 +357,29 @@ public class FishSFAgent : Agent {
 
     public void Satiate() {
         foodEaten++;
-    }
-
-    private void FixedUpdate() {
+        stomach = this.satiateDuration;
     }
     void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.CompareTag("food")) {
             collision.gameObject.GetComponent<FoodLogicSF>().OnEaten();
             Satiate();
             m_FishTrainer.foodEaten += 1;
-            this.AddScoreReward(eatReward);
+            this.AddScoreReward(rewards.eatReward);
         }
     }
     void OnCollisionStay2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("wall")) {
             m_FishTrainer.totalWallHitCount += 1;
-            this.AddScoreReward(wallCrashReward);
+            this.AddScoreReward(rewards.wallCrashReward);
         }
 
         if (collision.gameObject.CompareTag("agent")) {
             m_FishTrainer.totalAgentHitCount += 1;
-            this.AddScoreReward(neighborCrashReward);
+            this.AddScoreReward(rewards.neighborCrashReward);
         }
     }
     public void OnEaten() {
-        this.AddScoreReward(onEatenReward);
+        this.AddScoreReward(rewards.onEatenReward);
         this.m_FishTrainer.fishEaten += 1;
         this.ResetPosition();
     }
@@ -418,7 +389,8 @@ public class FishSFAgent : Agent {
         AddReward(reward);
     }
     private void OnDrawGizmosSelected() {
-        if (m_FishTrainer.renderNeighborRaySelected) {
+        FishTrainer trainer = FindObjectOfType<FishTrainer>();
+        if (trainer.renderNeighborRaySelected) {
             foreach (NeighborFish fish in neighborFishes) {
                 Vector3 target = transform.TransformPoint(fish.GetRelativePos(this.transform));
                 float intensity = ((neighborSensorRadius - Vector2.Distance(new Vector2(0, 0), fish.GetRelativePos(this.transform))) / neighborSensorRadius);
@@ -426,7 +398,7 @@ public class FishSFAgent : Agent {
                 Gizmos.DrawLine(transform.position, target);
             }
         }
-        if (m_FishTrainer.renderNeighborSensorSelected) {
+        if (trainer.renderNeighborSensorSelected) {
             //draw neighbor sensor radius
             Gizmos.color = Color.blue;
             float corners = 30; // How many corners the circle should have
@@ -445,7 +417,7 @@ public class FishSFAgent : Agent {
             }
         }
 
-        if (m_FishTrainer.renderPredatorSensorSelected) {
+        if (trainer.renderPredatorSensorSelected) {
             //draw neighbor sensor radius
             Gizmos.color = Color.yellow;
             float corners = 30; // How many corners the circle should have
@@ -464,7 +436,7 @@ public class FishSFAgent : Agent {
             }
         }
 
-        if (m_FishTrainer.renderPredatorRaySelected) {
+        if (trainer.renderPredatorRaySelected) {
             foreach (VisiblePredator visiblePredator in visiblePredators) {
                 Vector3 target = transform.TransformPoint(visiblePredator.GetRelativePos(this.transform));
                 float intensity = ((predatorSensorRadius - Vector2.Distance(new Vector2(0, 0), visiblePredator.GetRelativePos(this.transform))) / predatorSensorRadius);
@@ -473,7 +445,7 @@ public class FishSFAgent : Agent {
             }
         }
 
-        if (m_FishTrainer.renderVisionConeSelected) {
+        if (trainer.renderVisionConeSelected) {
             //draw food ray sensor
             Gizmos.color = Color.yellow;
             float corners = 30; // How many corners the circle should have

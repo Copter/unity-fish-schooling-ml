@@ -4,6 +4,7 @@ using Unity.MLAgents;
 using System.Collections.Generic;
 using System.Linq;
 
+
 public class FishTrainer : MonoBehaviour {
     [Header("Statistics")]
     [field: SerializeField, ReadOnlyField]
@@ -20,12 +21,18 @@ public class FishTrainer : MonoBehaviour {
     public int fishEaten = 0;
     [field: SerializeField, ReadOnlyField]
     private int totalFish = 1;
-
+    [field: SerializeField, ReadOnlyField]
+    public float avgFramesNearWall = 0;
+    [field: SerializeField, ReadOnlyField]
+    public int totalFramesNearWall = 0;
+    [field: SerializeField, ReadOnlyField]
+    public float agentSatiatedRatio = 0;
     [Header("Tank Settings")]
     public int fishPerTank;
     public int predatorsPerTank;
     public int clustersPerTank;
     public int fishSpawnRange;
+    public int maxFoodAmount;
     [Header("Agent Settings")]
     // Abilities
     [field: SerializeField]
@@ -40,19 +47,46 @@ public class FishTrainer : MonoBehaviour {
     public float agentNeighborSensorRadius = 40f;
     [field: SerializeField]
     public float agentPredatorSensorRadius = 65f;
+    [field: SerializeField]
+    public int satiateDuration = 10;
+    [field: SerializeField]
+    public int satiateDecay = 10;
+
+    [System.Serializable]
+    public class Rewards {
+        public Rewards(float onEatenReward, float eatReward, float loseNeighborReward, float wallCrashReward, float neighborCrashReward, float idleReward, float predatorDistanceReward, float seeNeighborReward) {
+            this.onEatenReward = onEatenReward;
+            this.eatReward = eatReward;
+            this.loseNeighborReward = loseNeighborReward;
+            this.wallCrashReward = wallCrashReward;
+            this.neighborCrashReward = neighborCrashReward;
+            this.idleReward = idleReward;
+            this.predatorDistanceReward = predatorDistanceReward;
+            this.seeNeighborReward = seeNeighborReward;
+        }
+        public float onEatenReward, eatReward, loseNeighborReward, wallCrashReward, neighborCrashReward, idleReward, predatorDistanceReward, seeNeighborReward;
+    }
     // Rewards
+    [Header("Rewards")]
     [field: SerializeField]
-    public float onEatenReward = -100f;
-    [field: SerializeField]
-    public float eatReward = 2.5f;
-    [field: SerializeField]
-    public float loseNeighborReward = -0.3f;
-    [field: SerializeField]
-    public float wallCrashReward = -3f;
-    [field: SerializeField]
-    public float neighborCrashReward = -3f;
-    [field: SerializeField]
-    public float idleReward = 0f;
+    public Rewards rewards = new Rewards(0, 0, 0, 0, 0, 0, 0, 0);
+    // [field: SerializeField]
+    // public float onEatenReward = -100f;
+    // [field: SerializeField]
+    // public float eatReward = 2.5f;
+    // [field: SerializeField]
+    // public float loseNeighborReward = -0.3f;
+    // [field: SerializeField]
+    // public float wallCrashReward = -3f;
+    // [field: SerializeField]
+    // public float neighborCrashReward = -3f;
+    // [field: SerializeField]
+    // public float idleReward = 0f;
+    // [field: SerializeField]
+    // public float predatorDistanceReward = -1f;
+    // [field: SerializeField]
+    // public float agentSeeNeighborReward = 0.01f;
+
     [Header("Predator Settings")]
     [field: SerializeField]
     public float predatorCruiseSpeed = 10f;
@@ -101,7 +135,36 @@ public class FishTrainer : MonoBehaviour {
 
     void EnvironmentReset() {
         cluster_level = m_ResetParams.GetWithDefault("food_cluster", defaultClusterLevel);
-        Debug.Log("cluster level: " + cluster_level);
+        float onEatenReward = m_ResetParams.GetWithDefault("on_eaten_reward", 0);
+        float eatReward = m_ResetParams.GetWithDefault("eat_reward", 0);
+        float loseNeighborReward = m_ResetParams.GetWithDefault("lose_neighbor_reward", 0);
+        float wallCrashReward = m_ResetParams.GetWithDefault("wall_crash_reward", 0);
+        float neighborCrashReward = m_ResetParams.GetWithDefault("neighbor_crash_reward", 0);
+        float idleReward = m_ResetParams.GetWithDefault("idle_reward", 0);
+        float predatorDistanceReward = m_ResetParams.GetWithDefault("predator_distance_reward", 0);
+        float seeNeighborReward = m_ResetParams.GetWithDefault("see_neighbor_reward", 0);
+
+        this.rewards.onEatenReward = onEatenReward;
+        this.rewards.eatReward = eatReward;
+        this.rewards.loseNeighborReward = loseNeighborReward;
+        this.rewards.wallCrashReward = wallCrashReward;
+        this.rewards.neighborCrashReward = neighborCrashReward;
+        this.rewards.idleReward = idleReward;
+        this.rewards.predatorDistanceReward = predatorDistanceReward;
+        this.rewards.seeNeighborReward = seeNeighborReward;
+
+        Debug.Log("Scene initialized with the following settings: \n" +
+        $"cluster level: {cluster_level} \n" +
+        $"on_eaten_reward: {rewards.onEatenReward} \n" +
+        $"eat_reward: {rewards.eatReward} \n" +
+        $"lose_neighbor_reward: {rewards.loseNeighborReward} \n" +
+        $"wall_crash_reward: {rewards.wallCrashReward} \n" +
+        $"neighbor_crash_reward: {rewards.neighborCrashReward} \n" +
+        $"idle_reward: {rewards.idleReward} \n" +
+        $"predator_distance_reward: {rewards.predatorDistanceReward} \n" +
+        $"see_neighbor_reward: {rewards.seeNeighborReward}"
+        );
+
         ClearObjects(GameObject.FindGameObjectsWithTag("food"));
         ClearObjects(GameObject.FindGameObjectsWithTag("food_cluster"));
         agents = GameObject.FindGameObjectsWithTag("agent");
@@ -137,6 +200,20 @@ public class FishTrainer : MonoBehaviour {
         avgNeighborTicker += 1;
     }
 
+    public void UpdateFramesNearWall() {
+        totalFramesNearWall++;
+        avgFramesNearWall = totalFramesNearWall / totalFish;
+    }
+
+    public void UpdateAgentsSatiatedRatio() {
+        int tempCount = 0;
+        foreach (GameObject agentObject in agents) {
+            FishSFAgent agent = agentObject.GetComponent<FishSFAgent>();
+            if (agent.stomach > 0) tempCount++;
+        }
+        this.agentSatiatedRatio = (float)tempCount / totalFish;
+    }
+
     public Dictionary<int, int> GetFishGroupings(List<int> newGrouping) {
         Dictionary<int, int> groupings = new Dictionary<int, int>();
         foreach (int num in newGrouping) {
@@ -151,19 +228,22 @@ public class FishTrainer : MonoBehaviour {
 
     public void Update() {
         int maximumGroupSize = 0;
-        float averageGroupSize = 0f;
+        float avgGroupSize = 0f;
+        UpdateAgentsSatiatedRatio();
         if (fishGroups.Count > 0) {
-            averageGroupSize = (float)fishGroups.Average();
+            avgGroupSize = (float)fishGroups.Average();
             maximumGroupSize = fishGroups.Max();
         }
         scoreText.text = $"AverageScore: {totalScore / totalFish}\n" +
         $"AvgWallHitFrames: {totalWallHitCount / totalFish}\n" +
         $"AverageAgentHitFrames: {totalAgentHitCount / totalFish}\n" +
+        $"AverageFramesNearWall: {avgFramesNearWall}\n" +
         $"AvgNeighborCount: {avgNeighbors}\n" +
-        $"AvgGroupSize: {averageGroupSize}\n" +
+        $"AvgGroupSize: {avgGroupSize}\n" +
         $"MaxGroupSize: {maximumGroupSize}\n" +
         $"TotalFishEaten: {fishEaten}\n" +
-        $"TotalFoodEatn: {foodEaten}\n";
+        $"TotalFoodEatn: {foodEaten}\n" +
+        $"AgentSatiatedRatio: {agentSatiatedRatio}\n";
         Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
         foreach (KeyValuePair<int, int> entry in groupings) {
             scoreText.text += $"\ngroup of {entry.Key} : {entry.Value}";
@@ -173,7 +253,7 @@ public class FishTrainer : MonoBehaviour {
         // need to send every Update() call.
 
         if ((Time.frameCount % 100) == 0) {
-            m_Recorder.Add("Agent/avgGroupSize", averageGroupSize);
+            m_Recorder.Add("Agent/avgGroupSize", avgGroupSize);
             m_Recorder.Add("Agent/maximumGroupSize", maximumGroupSize);
             m_Recorder.Add("Agent/TotalScore", totalScore);
             m_Recorder.Add("Agent/AverageScore", totalScore / totalFish);
@@ -182,7 +262,8 @@ public class FishTrainer : MonoBehaviour {
             m_Recorder.Add("Agent/avgNeighbors", avgNeighbors);
             m_Recorder.Add("Agent/FoodEaten", foodEaten);
             m_Recorder.Add("Agent/TotalTimesEatenByPredator", fishEaten);
-            // m_Recorder.Add("Agent/FoodEatenWhenNotHungry", foodEatenWhenNotHungry);
+            m_Recorder.Add("Agent/AvgFramesNearWall", avgFramesNearWall);
+            m_Recorder.Add("Agent/AgentsSatiatedRatio", agentSatiatedRatio);
         }
     }
 }
