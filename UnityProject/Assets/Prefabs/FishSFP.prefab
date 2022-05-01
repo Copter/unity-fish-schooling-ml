@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7395969864664443972}
   - component: {fileID: 1614552258910242782}
   - component: {fileID: 1614552258910242756}
+  - component: {fileID: 4570998470145913955}
   - component: {fileID: 601517287633630894}
   - component: {fileID: 1614552258910242779}
   - component: {fileID: 1191631695106916191}
@@ -175,19 +176,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f67c7e722ba14acd9153bb4488bff6e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SensorName: FoodSensor
+  m_SensorName: Food Sensor
   m_DetectableTags:
   - food
-  - wall
   m_RaysPerDirection: 5
   m_MaxRayDegrees: 72.7
   m_SphereCastRadius: 1.35
   m_RayLength: 50
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 384
+    m_Bits: 128
   m_ObservationStacks: 1
   rayHitColor: {r: 0.04513645, g: 1, b: 0, a: 1}
+  rayMissColor: {r: 1, g: 1, b: 1, a: 0}
+--- !u!114 &4570998470145913955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1614552258910242771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67c7e722ba14acd9153bb4488bff6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: Wall Sensor
+  m_DetectableTags:
+  - wall
+  m_RaysPerDirection: 5
+  m_MaxRayDegrees: 72.7
+  m_SphereCastRadius: 0.5
+  m_RayLength: 200
+  m_RayLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  m_ObservationStacks: 1
+  rayHitColor: {r: 1, g: 0, b: 0, a: 0}
   rayMissColor: {r: 1, g: 1, b: 1, a: 0}
 --- !u!114 &601517287633630894
 MonoBehaviour:
@@ -226,7 +251,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 3456cde9749c5014da1a3a8768e22f4d, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 59a03a2d00ac11249808d03d0f83a261, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: FishSF

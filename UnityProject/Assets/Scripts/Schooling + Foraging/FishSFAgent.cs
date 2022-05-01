@@ -70,6 +70,8 @@ public class FishSFAgent : Agent {
 
     [NonSerialized]
     private RayPerceptionSensorComponent2D foodSensorComponent;
+    [NonSerialized]
+    private RayPerceptionSensorComponent2D wallSensorComponent;
     // [NonSerialized]
     // private RayPerceptionSensorComponent2D m_PredatorSensorComponent;
     [NonSerialized]
@@ -96,7 +98,7 @@ public class FishSFAgent : Agent {
         voronoiDiagram = FindObjectOfType<VoronoiDiagram>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         foodSensorComponent = sensorComponents[0];
-
+        wallSensorComponent = sensorComponents[1];
         this.steerStrength = m_FishTrainer.agentSteerStrength;
         this.maxSpeed = m_FishTrainer.agentMaxSpeed;
         this.minSpeed = m_FishTrainer.agentMinSpeed;
@@ -302,12 +304,20 @@ public class FishSFAgent : Agent {
         }
 
         RayPerceptionSensor foodRaySensor = foodSensorComponent.RaySensor;
+
         bool tempFoodVisible = false;
         foreach (RayPerceptionOutput.RayOutput output in foodRaySensor.RayPerceptionOutput.RayOutputs) {
             if (output.HitGameObject) {
                 if (output.HitGameObject.CompareTag("food")) {
                     tempFoodVisible = true;
                 }
+            }
+        }
+
+        RayPerceptionSensor WallRaySensor = wallSensorComponent.RaySensor;
+
+        foreach (RayPerceptionOutput.RayOutput output in WallRaySensor.RayPerceptionOutput.RayOutputs) {
+            if (output.HitGameObject) {
                 if (output.HitGameObject.CompareTag("wall")) {
                     this.m_FishTrainer.UpdateFramesNearWall();
                 }

@@ -37,6 +37,6 @@ environment_parameters:
   lose_neighbor_reward: -0.1
   wall_crash_reward: -0.5
   neighbor_crash_reward: -0.25
-  idle_reward: -0.0005
+  idle_reward: 0
   predator_distance_reward: -0.25
   see_neighbor_reward: 0.0008
