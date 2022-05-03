@@ -318,7 +318,7 @@ public class FishSFAgent : Agent {
 
         foreach (RayPerceptionOutput.RayOutput output in WallRaySensor.RayPerceptionOutput.RayOutputs) {
             if (output.HitGameObject) {
-                if (output.HitGameObject.CompareTag("wall")) {
+                if (output.HitGameObject.CompareTag("wall") && output.HitFraction < 0.1) {
                     this.m_FishTrainer.UpdateFramesNearWall();
                 }
             }

@@ -3,9 +3,59 @@ using UnityEngine.UI;
 using Unity.MLAgents;
 using System.Collections.Generic;
 using System.Linq;
-
+using System;
 
 public class FishTrainer : MonoBehaviour {
+    [Serializable]
+    public class Statistics {
+        public Statistics(
+        int steps,
+        float avgNeighbors,
+         int foodEaten,
+         float totalScore,
+         int totalAgentHitCount,
+         int totalWallHitCount,
+         int fishEaten,
+         float totalFish,
+         float avgFramesNearWall,
+         float agentSatiatedRatio,
+         float globalPolarization,
+         float meanSpeed,
+         float meanFoodIntensity,
+         float meanPredatorIntensity,
+         float meanDirection
+         ) {
+            this.steps = steps;
+            this.foodEaten = foodEaten;
+            this.totalScore = totalScore;
+            this.totalAgentHitCount = totalAgentHitCount;
+            this.totalWallHitCount = totalWallHitCount;
+            this.fishEaten = fishEaten;
+            this.totalFish = totalFish;
+            this.avgFramesNearWall = avgFramesNearWall;
+            this.agentSatiatedRatio = agentSatiatedRatio;
+            this.globalPolarization = globalPolarization;
+            this.meanSpeed = meanSpeed;
+            this.meanFoodIntensity = meanFoodIntensity;
+            this.meanPredatorIntensity = meanPredatorIntensity;
+            this.meanDirection = meanDirection;
+        }
+        public int steps;
+        public int foodEaten;
+        public float totalScore;
+        public int totalAgentHitCount;
+        public int totalWallHitCount;
+        public int fishEaten;
+        public float totalFish;
+        public float avgFramesNearWall;
+        public float agentSatiatedRatio;
+        public float globalPolarization;
+        public float meanSpeed;
+        public float meanFoodIntensity;
+        public float meanPredatorIntensity;
+        public float meanDirection;
+    }
+    List<Statistics> statistics = new List<Statistics>();
     [Header("Statistics")]
     [field: SerializeField, ReadOnlyField]
     private float avgNeighbors = 0f;
@@ -20,13 +70,23 @@ public class FishTrainer : MonoBehaviour {
     [field: SerializeField, ReadOnlyField]
     public int fishEaten = 0;
     [field: SerializeField, ReadOnlyField]
-    private int totalFish = 1;
+    private float totalFish = 1;
     [field: SerializeField, ReadOnlyField]
     public float avgFramesNearWall = 0;
     [field: SerializeField, ReadOnlyField]
     public int totalFramesNearWall = 0;
     [field: SerializeField, ReadOnlyField]
     public float agentSatiatedRatio = 0;
+    [field: SerializeField, ReadOnlyField]
+    public float globalPolarization = 0;
+    [field: SerializeField, ReadOnlyField]
+    public Vector2 meanDirection = new Vector2(0, 0);
+    [field: SerializeField, ReadOnlyField]
+    public float meanSpeed = 0;
+    [field: SerializeField, ReadOnlyField]
+    public float meanFoodIntensity = 0;
+    [field: SerializeField, ReadOnlyField]
+    public float meanPredatorIntensity = 0;
     [Header("Tank Settings")]
     public int fishPerTank;
     public int predatorsPerTank;
@@ -51,6 +111,10 @@ public class FishTrainer : MonoBehaviour {
     public int satiateDuration = 10;
     [field: SerializeField]
     public int satiateDecay = 10;
+
+    private int simulationSteps = 0;
+    private int statRecordTimer = 0;
+
 
     [System.Serializable]
     public class Rewards {
@@ -121,6 +185,8 @@ public class FishTrainer : MonoBehaviour {
     [HideInInspector]
     private int avgNeighborTicker = 0;
     private List<int> fishGroups = new List<int>();
+    private int run_count = -1;
+
 
     StatsRecorder m_Recorder;
     EnvironmentParameters m_ResetParams;
@@ -131,6 +197,11 @@ public class FishTrainer : MonoBehaviour {
         Academy.Instance.OnEnvironmentReset += EnvironmentReset;
         m_ResetParams = Academy.Instance.EnvironmentParameters;
         m_Recorder = Academy.Instance.StatsRecorder;
+        int current_run_count = 0;
+        while (System.IO.File.Exists(Application.dataPath + $"/simulation_runs/run_{current_run_count}.json")) {
+            current_run_count += 1;
+        }
+        this.run_count = current_run_count;
     }
 
     void EnvironmentReset() {
@@ -181,7 +252,7 @@ public class FishTrainer : MonoBehaviour {
             fa.ResetTank(agents, cluster_level);
         }
         int agentCount = agents.Count();
-        totalFish = agentCount > 0 ? agentCount : 1;
+        totalFish = agentCount > 0f ? (float)agentCount : 1f;
         totalScore = 0;
     }
 
@@ -214,6 +285,27 @@ public class FishTrainer : MonoBehaviour {
         this.agentSatiatedRatio = (float)tempCount / totalFish;
     }
 
+    private void updateGlobalProperties() {
+        float sumSpeed = 0;
+        Vector2 sumDirection = new Vector2(0, 0);
+        float sumPolarization = 0;
+        float sumFoodIntensity = 0;
+        float sumPredatorIntensity = 0;
+        foreach (GameObject agentObject in agents) {
+            FishSFAgent agent = agentObject.GetComponent<FishSFAgent>();
+            sumSpeed += agent.rb.velocity.magnitude;
+            sumDirection += agent.rb.velocity.normalized;
+            sumPolarization += Vector2.Angle(agent.rb.velocity.normalized, meanDirection);
+            sumFoodIntensity += agent.foodSensoryIntensity;
+            sumPredatorIntensity += agent.predatorSensoryIntensity;
+        }
+        globalPolarization = sumPolarization / (totalFish * 90);
+        meanDirection = sumDirection / totalFish;
+        meanSpeed = sumSpeed / totalFish;
+        meanFoodIntensity = sumFoodIntensity / totalFish;
+        meanPredatorIntensity = sumPredatorIntensity / totalFish;
+    }
+
     public Dictionary<int, int> GetFishGroupings(List<int> newGrouping) {
         Dictionary<int, int> groupings = new Dictionary<int, int>();
         foreach (int num in newGrouping) {
@@ -226,13 +318,51 @@ public class FishTrainer : MonoBehaviour {
         return groupings;
     }
 
-    public void Update() {
+    private void FixedUpdate() {
+        if (Time.timeScale == 0 || this.run_count < 0) return;
+        if (this.statRecordTimer >= 10) {
+            this.statistics.Add(new Statistics(
+                this.simulationSteps,
+                this.avgNeighbors,
+                this.foodEaten, this.totalScore,
+                this.totalAgentHitCount,
+                this.totalWallHitCount,
+                this.fishEaten,
+                this.totalFish,
+                this.avgFramesNearWall,
+                this.agentSatiatedRatio,
+                this.globalPolarization,
+                this.meanSpeed,
+                this.meanFoodIntensity,
+                this.meanPredatorIntensity,
+                Angle(this.meanDirection))
+            );
+            this.SaveStats();
+            this.statRecordTimer = 0;
+        }
+        this.simulationSteps += 1;
+        this.statRecordTimer += 1;
+    }
+
+    private void SaveStats() {
+        string jsonToSave = JsonHelper.ToJson(this.statistics.ToArray(), true);
+        System.IO.File.WriteAllText(Application.dataPath + $"/simulation_runs/run_{run_count}.json", jsonToSave);
+    }
+
+    private void Update() {
         int maximumGroupSize = 0;
         float avgGroupSize = 0f;
         UpdateAgentsSatiatedRatio();
+        updateGlobalProperties();
         if (fishGroups.Count > 0) {
-            avgGroupSize = (float)fishGroups.Average();
-            maximumGroupSize = fishGroups.Max();
+            int sumSize = 0;
+            int currentMaxGroupSize = 0;
+            foreach (int groupSize in fishGroups) {
+                sumSize += groupSize;
+                if (groupSize > currentMaxGroupSize) currentMaxGroupSize = groupSize;
+            }
+            avgGroupSize = ((float)sumSize) / totalFish;
+            maximumGroupSize = currentMaxGroupSize;
         }
         scoreText.text = $"AverageScore: {totalScore / totalFish}\n" +
         $"AvgWallHitFrames: {totalWallHitCount / totalFish}\n" +
@@ -242,8 +372,10 @@ public class FishTrainer : MonoBehaviour {
         $"AvgGroupSize: {avgGroupSize}\n" +
         $"MaxGroupSize: {maximumGroupSize}\n" +
         $"TotalFishEaten: {fishEaten}\n" +
-        $"TotalFoodEatn: {foodEaten}\n" +
-        $"AgentSatiatedRatio: {agentSatiatedRatio}\n";
+        $"TotalFoodEaten: {foodEaten}\n" +
+        $"AgentSatiatedRatio: {agentSatiatedRatio}\n" +
+        $"GlobalPolarization: {globalPolarization}\n" +
+        $"MeanSpeed: {meanSpeed}";
         Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
         foreach (KeyValuePair<int, int> entry in groupings) {
             scoreText.text += $"\ngroup of {entry.Key} : {entry.Value}";
@@ -255,7 +387,6 @@ public class FishTrainer : MonoBehaviour {
         if ((Time.frameCount % 100) == 0) {
             m_Recorder.Add("Agent/avgGroupSize", avgGroupSize);
             m_Recorder.Add("Agent/maximumGroupSize", maximumGroupSize);
-            m_Recorder.Add("Agent/TotalScore", totalScore);
             m_Recorder.Add("Agent/AverageScore", totalScore / totalFish);
             m_Recorder.Add("Agent/TotalWallHit", totalWallHitCount);
             m_Recorder.Add("Agent/TotalAgentHit", totalAgentHitCount);
@@ -264,6 +395,12 @@ public class FishTrainer : MonoBehaviour {
             m_Recorder.Add("Agent/TotalTimesEatenByPredator", fishEaten);
             m_Recorder.Add("Agent/AvgFramesNearWall", avgFramesNearWall);
             m_Recorder.Add("Agent/AgentsSatiatedRatio", agentSatiatedRatio);
+            m_Recorder.Add("Agent/GlobalPolarization", globalPolarization);
+            m_Recorder.Add("Agent/MeanSpeed", meanSpeed);
         }
+    }
+
+    public static float Angle(Vector2 vector2) {
+        return 360f - (Mathf.Atan2(vector2.x, vector2.y) * Mathf.Rad2Deg * Mathf.Sign(vector2.x));
     }
 }
