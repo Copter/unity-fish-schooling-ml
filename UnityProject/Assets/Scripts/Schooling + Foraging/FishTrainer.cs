@@ -9,21 +9,21 @@ public class FishTrainer : MonoBehaviour {
     [Serializable]
     public class Statistics {
         public Statistics(
-        int steps,
-        float avgNeighbors,
-         int foodEaten,
-         float totalScore,
-         int totalAgentHitCount,
-         int totalWallHitCount,
-         int fishEaten,
-         float totalFish,
-         float avgFramesNearWall,
-         float agentSatiatedRatio,
-         float globalPolarization,
-         float meanSpeed,
-         float meanFoodIntensity,
-         float meanPredatorIntensity,
-         float meanDirection
+            int steps,
+            float avgNeighbors,
+            int foodEaten,
+            float totalScore,
+            int totalAgentHitCount,
+            int totalWallHitCount,
+            int fishEaten,
+            float totalFish,
+            float avgFramesNearWall,
+            float agentSatiatedRatio,
+            float globalPolarization,
+            float meanSpeed,
+            float meanFoodIntensity,
+            float meanPredatorIntensity,
+            float meanDirection
          ) {
             this.steps = steps;
             this.foodEaten = foodEaten;
@@ -39,6 +39,7 @@ public class FishTrainer : MonoBehaviour {
             this.meanFoodIntensity = meanFoodIntensity;
             this.meanPredatorIntensity = meanPredatorIntensity;
             this.meanDirection = meanDirection;
+            this.avgNeighbors = avgNeighbors;
         }
         public int steps;
         public int foodEaten;
@@ -54,6 +55,7 @@ public class FishTrainer : MonoBehaviour {
         public float meanFoodIntensity;
         public float meanPredatorIntensity;
         public float meanDirection;
+        public float avgNeighbors;
     }
     List<Statistics> statistics = new List<Statistics>();
     [Header("Max Simulation Steps")]
