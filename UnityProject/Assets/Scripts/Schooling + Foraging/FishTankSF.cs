@@ -128,7 +128,7 @@ public class FishTankSF : MonoBehaviour {
             for (int j = 0; j < gridBlocks.GetLength(1); j++) {
                 Block block = gridBlocks[i, j].GetComponent<Block>();
                 if (block.fishInBlock.Count > 0) {
-                    block.spriteRenderer.color = new Color32(255, 255, 0, 25);
+                    // block.spriteRenderer.color = new Color32(255, 255, 0, 25);
                 } else {
                     block.spriteRenderer.color = new Color32(11, 83, 253, 25);
                 }
