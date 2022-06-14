@@ -56,6 +56,9 @@ public class FishTrainer : MonoBehaviour {
         public float meanDirection;
     }
     List<Statistics> statistics = new List<Statistics>();
+    [Header("Max Simulation Steps")]
+    [field: SerializeField]
+    public long maxSimulationSteps = 10000000000000;
     [Header("Statistics")]
     [field: SerializeField, ReadOnlyField]
     private float avgNeighbors = 0f;
@@ -320,6 +323,9 @@ public class FishTrainer : MonoBehaviour {
 
     private void FixedUpdate() {
         if (Time.timeScale == 0 || this.run_count < 0) return;
+        if(this.simulationSteps >= this.maxSimulationSteps && this.simulationSteps != 0){
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
         if (this.statRecordTimer >= 10) {
             this.statistics.Add(new Statistics(
                 this.simulationSteps,
