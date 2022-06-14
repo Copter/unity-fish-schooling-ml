@@ -359,7 +359,7 @@ MonoBehaviour:
   meanFoodIntensity: 0
   meanPredatorIntensity: 0
   fishPerTank: 75
-  predatorsPerTank: 0
+  predatorsPerTank: 1
   clustersPerTank: 2
   fishSpawnRange: 50
   maxFoodAmount: 300
