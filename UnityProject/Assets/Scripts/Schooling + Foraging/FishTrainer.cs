@@ -375,11 +375,13 @@ public class FishTrainer : MonoBehaviour {
         $"TotalFoodEaten: {foodEaten}\n" +
         $"AgentSatiatedRatio: {agentSatiatedRatio}\n" +
         $"GlobalPolarization: {globalPolarization}\n" +
-        $"MeanSpeed: {meanSpeed}";
+        $"MeanSpeed: {meanSpeed}\n" + 
+        $"Simulation Steps: {this.simulationSteps}\n";
         Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
         foreach (KeyValuePair<int, int> entry in groupings) {
             scoreText.text += $"\ngroup of {entry.Key} : {entry.Value}";
         }
+
         // Send stats via SideChannel so that they'll appear in TensorBoard.
         // These values get averaged every summary_frequency steps, so we don't
         // need to send every Update() call.
