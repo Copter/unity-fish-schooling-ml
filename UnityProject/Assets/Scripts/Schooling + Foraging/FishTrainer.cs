@@ -325,7 +325,7 @@ public class FishTrainer : MonoBehaviour {
 
     private void FixedUpdate() {
         if (Time.timeScale == 0 || this.run_count < 0) return;
-        if(this.simulationSteps >= this.maxSimulationSteps && this.simulationSteps != 0){
+        if(this.simulationSteps >= this.maxSimulationSteps && this.maxSimulationSteps != 0){
             UnityEditor.EditorApplication.isPlaying = false;
         }
         if (this.statRecordTimer >= 10) {
