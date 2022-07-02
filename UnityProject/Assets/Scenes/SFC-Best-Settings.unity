@@ -343,6 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dca94752efe80d543b3f2f116e7d73b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSimulationSteps: 10000000000000
   avgNeighbors: 0
   foodEaten: 0
   totalScore: 0
@@ -368,7 +369,7 @@ MonoBehaviour:
   agentMinSpeed: 10
   agentAccelerationConstant: 1
   agentNeighborSensorRadius: 40
-  agentPredatorSensorRadius: 65
+  agentPredatorSensorRadius: 40
   satiateDuration: 30
   satiateDecay: 20
   rewards:
@@ -381,12 +382,12 @@ MonoBehaviour:
     predatorDistanceReward: 0
     seeNeighborReward: 0
   predatorCruiseSpeed: 10
-  predatorChaseSpeed: 25
-  predatorVisibleRadius: 40
+  predatorChaseSpeed: 35
+  predatorVisibleRadius: 65
   predatorSteerStrength: 5
-  predatorChaseForceMagnitude: 30
+  predatorChaseForceMagnitude: 60
   predatorMaxStomach: 10
-  predatorSwimToCluster: 0
+  predatorSwimToCluster: 1
   scoreText: {fileID: 505345392}
   renderVoronoiSelected: 0
   renderVisionConeSelected: 0
