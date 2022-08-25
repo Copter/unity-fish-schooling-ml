@@ -23,7 +23,8 @@ public class FishTrainer : MonoBehaviour {
             float meanSpeed,
             float meanFoodIntensity,
             float meanPredatorIntensity,
-            float meanDirection
+            float meanDirection,
+            float groupPolarization
          ) {
             this.steps = steps;
             this.foodEaten = foodEaten;
@@ -35,6 +36,7 @@ public class FishTrainer : MonoBehaviour {
             this.avgFramesNearWall = avgFramesNearWall;
             this.agentSatiatedRatio = agentSatiatedRatio;
             this.globalPolarization = globalPolarization;
+            this.groupPolarization = groupPolarization;
             this.meanSpeed = meanSpeed;
             this.meanFoodIntensity = meanFoodIntensity;
             this.meanPredatorIntensity = meanPredatorIntensity;
@@ -51,6 +53,7 @@ public class FishTrainer : MonoBehaviour {
         public float avgFramesNearWall;
         public float agentSatiatedRatio;
         public float globalPolarization;
+        public float groupPolarization;
         public float meanSpeed;
         public float meanFoodIntensity;
         public float meanPredatorIntensity;
@@ -84,6 +87,8 @@ public class FishTrainer : MonoBehaviour {
     public float agentSatiatedRatio = 0;
     [field: SerializeField, ReadOnlyField]
     public float globalPolarization = 0;
+    [field: SerializeField, ReadOnlyField]
+    public float groupPolarization = 0;
     [field: SerializeField, ReadOnlyField]
     public Vector2 meanDirection = new Vector2(0, 0);
     [field: SerializeField, ReadOnlyField]
@@ -306,6 +311,7 @@ public class FishTrainer : MonoBehaviour {
         }
         globalPolarization = sumPolarization / (totalFish * 90);
         meanDirection = sumDirection / totalFish;
+        groupPolarization = meanDirection.magnitude;
         meanSpeed = sumSpeed / totalFish;
         meanFoodIntensity = sumFoodIntensity / totalFish;
         meanPredatorIntensity = sumPredatorIntensity / totalFish;
@@ -343,7 +349,8 @@ public class FishTrainer : MonoBehaviour {
                 this.meanSpeed,
                 this.meanFoodIntensity,
                 this.meanPredatorIntensity,
-                Angle(this.meanDirection))
+                Angle(this.meanDirection),
+                this.groupPolarization)
             );
             this.SaveStats();
             this.statRecordTimer = 0;
@@ -383,6 +390,7 @@ public class FishTrainer : MonoBehaviour {
         $"TotalFoodEaten: {foodEaten}\n" +
         $"AgentSatiatedRatio: {agentSatiatedRatio}\n" +
         $"GlobalPolarization: {globalPolarization}\n" +
+        $"GroupPolarization: {groupPolarization}\n" +
         $"MeanSpeed: {meanSpeed}\n" + 
         $"Simulation Steps: {this.simulationSteps}\n";
         Dictionary<int, int> groupings = GetFishGroupings(fishGroups);
@@ -407,6 +415,7 @@ public class FishTrainer : MonoBehaviour {
             m_Recorder.Add("Agent/AgentsSatiatedRatio", agentSatiatedRatio);
             m_Recorder.Add("Agent/GlobalPolarization", globalPolarization);
             m_Recorder.Add("Agent/MeanSpeed", meanSpeed);
+            m_Recorder.Add("Agent/GroupPolarization", groupPolarization);
         }
     }
 
