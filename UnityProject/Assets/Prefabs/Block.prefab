@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3242209205929083227}
   - component: {fileID: 6432653544324832135}
-  m_Layer: 13
+  m_Layer: 3
   m_Name: Block
-  m_TagString: Untagged
+  m_TagString: block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -45,6 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fishInBlock: []
+  predatorsInBlock: []
+  blockXPos: 0
+  blockYPos: 0
   spriteRenderer: {fileID: 0}
 --- !u!1 &8515116796369828381
 GameObject:
@@ -56,7 +59,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4304913131384676205}
   - component: {fileID: 7581306360829079518}
-  m_Layer: 13
+  m_Layer: 3
   m_Name: BlockSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}

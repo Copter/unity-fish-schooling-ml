@@ -247,9 +247,9 @@ MonoBehaviour:
   fishEaten: 0
   renderVisionConeSelected: 0
   renderNeighborSensorSelected: 0
-  renderNeighborRaySelected: 0
+  renderNeighborRaySelected: 1
   renderPredatorSensorSelected: 0
-  renderPredatorRaySelected: 0
+  renderPredatorRaySelected: 1
   renderNeighborRayAll: 0
 --- !u!4 &312968963
 Transform:
@@ -498,7 +498,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -525, y: 29.6497}
+  m_AnchoredPosition: {x: -436, y: 16}
   m_SizeDelta: {x: 214.1071, y: 523.0385}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1860776159

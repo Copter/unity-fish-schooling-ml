@@ -5,10 +5,10 @@ public struct NeighborFish {
         FishComponent = fishComponent;
     }
     public FishSFAgent FishComponent { get; }
-    public Vector2 GetRelativePos(Transform transform) {
+    public Vector3 GetRelativePos(Transform transform) {
         return transform.InverseTransformPointUnscaled(FishComponent.transform.position);
     }
-    public Vector2 Velocity(Transform transform) {
+    public Vector3 GetRelativeVelocity(Transform transform) {
         return transform.InverseTransformVector(FishComponent.rb.velocity);
     }
 }

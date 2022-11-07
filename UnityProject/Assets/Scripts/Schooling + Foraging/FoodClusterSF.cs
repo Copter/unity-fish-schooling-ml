@@ -7,21 +7,26 @@ public class FoodClusterSF : MonoBehaviour {
     public bool respawnFood;
     public float width;
     public float height;
-    public const int maxFoodAmount = 100;
     [field: SerializeField, ReadOnlyField]
-    public int totalFoodAmount = maxFoodAmount;
-    public int foodSpawnCap = 20;
+    public int maxFoodAmount = 200;
+    [field: SerializeField, ReadOnlyField]
+    public int totalFoodAmount;
+    public int foodSpawnCap = 10;
     private List<GameObject> foodArray = new List<GameObject>();
     public FishTankSF myTank;
     // Start is called before the first frame update
     void Start() {
         width = GetComponent<SpriteRenderer>().bounds.size.x;
         height = GetComponent<SpriteRenderer>().bounds.size.y;
+        this.totalFoodAmount = this.maxFoodAmount;
         CreateFood(foodSpawnCap, food);
     }
 
     // Update is called once per frame
     void Update() {
+    }
+
+    void FixedUpdate() {
         bool empty = true;
         for (int i = 0; i < foodArray.Count; i++) {
             if (foodArray[i] != null) empty = false;

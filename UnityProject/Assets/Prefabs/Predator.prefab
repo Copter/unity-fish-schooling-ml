@@ -58,9 +58,7 @@ MonoBehaviour:
   steerStrength: 20.2
   chaseForceMagnitude: 30
   maxStomach: 10
-  block: {fileID: 0}
-  tank: {fileID: 0}
-  swimToCluster: 1
+  swimToCluster: 0
 --- !u!50 &5530917580288565737
 Rigidbody2D:
   serializedVersion: 4
